@@ -44,4 +44,11 @@ public class IssueController {
     public Issue updateIssue(@PathVariable Long id,@RequestBody Issue issue) {
        return issueService.updateIssue(id, issue);
     }
+
+    @GetMapping("/project/{projectId}")
+    public List<IssueDTO> getIssuesByProjectId(@PathVariable Long projectId) {
+        return issueService.getIssuesByProjectId(projectId);
+    }
+
+
 }

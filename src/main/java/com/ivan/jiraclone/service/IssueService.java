@@ -65,4 +65,13 @@ public class IssueService {
         dto.setStatus(issue.getStatus());
         return dto;
    }
+
+   public List<IssueDTO> getIssuesByProjectId(Long projectId) {
+        List<Issue> issues = issueRepository.findByProjectId(projectId);
+        List<IssueDTO> dtos = new ArrayList<>();
+        for (Issue issue : issues) {
+            dtos.add(convertToDTO(issue));
+        }
+        return dtos;
+   }
 }
