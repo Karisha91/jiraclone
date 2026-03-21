@@ -3,6 +3,7 @@ package com.ivan.jiraclone.service;
 
 import com.ivan.jiraclone.Repository.IssueRepository;
 import com.ivan.jiraclone.dto.IssueDTO;
+import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
 import org.springframework.stereotype.Service;
 
@@ -74,4 +75,32 @@ public class IssueService {
         }
         return dtos;
    }
+
+   public List<IssueDTO> getIssuesByStatus(Status status) {
+        List<Issue> issues = issueRepository.findByStatus(status);
+        List<IssueDTO> dtos = new ArrayList<>();
+        for (Issue issue : issues) {
+            dtos.add(convertToDTO(issue));
+        }
+        return dtos;
+   }
+
+    public List<IssueDTO> getIssuesByProjectIdAndStatus(Long projectId, Status status) {
+        List<Issue> issues = issueRepository.findByProjectIdAndStatus(projectId, status);
+        List<IssueDTO> dtos = new ArrayList<>();
+        for (Issue issue : issues) {
+            dtos.add(convertToDTO(issue));
+        }
+        return dtos;
+    }
+
+    public List<IssueDTO> getIssuesByAssigneeId(Long assigneeId) {
+        List<Issue> issues = issueRepository.findByAssignee(assigneeId);
+        List<IssueDTO> dtos = new ArrayList<>();
+        for (Issue issue : issues) {
+            dtos.add(convertToDTO(issue));
+        }
+
+        return dtos;
+    }
 }

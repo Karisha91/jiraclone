@@ -2,6 +2,7 @@ package com.ivan.jiraclone.controller;
 
 
 import com.ivan.jiraclone.dto.IssueDTO;
+import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.service.IssueService;
 import org.springframework.web.bind.annotation.*;
@@ -50,5 +51,17 @@ public class IssueController {
         return issueService.getIssuesByProjectId(projectId);
     }
 
+    @GetMapping("/status/{status}")
+    public List<IssueDTO> getIssuesByStatus(@PathVariable Status status) {
+        return issueService.getIssuesByStatus(status);
+    }
 
+    @GetMapping("project/{projectId}/status/{status}")
+    public List<IssueDTO> getIssuesByProjectIdAndStatus(@PathVariable Long projectId,@PathVariable Status status) {
+        return issueService.getIssuesByProjectIdAndStatus(projectId, status);
+    }
+    @GetMapping("assignee/{assigneeId}")
+    public List<IssueDTO> getIssuesByAssigneeId(@PathVariable Long assigneeId) {
+        return issueService.getIssuesByAssigneeId(assigneeId);
+    }
 }
