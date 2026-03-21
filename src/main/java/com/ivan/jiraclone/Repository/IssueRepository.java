@@ -20,7 +20,7 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByProjectIdAndStatus(@Param("projectId") Long projectId, @Param("status") Status status);
 
     @Query("SELECT i FROM Issue i WHERE i.assignee.id = :assigneeId")
-    List<Issue> findByAssignee(Long assigneeId);
+    List<Issue> findByAssignee(@Param("assigneeId") Long assigneeId);
 
 
 
