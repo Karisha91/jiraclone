@@ -64,4 +64,8 @@ public class IssueController {
     public List<IssueDTO> getIssuesByAssigneeId(@PathVariable Long assigneeId) {
         return issueService.getIssuesByAssigneeId(assigneeId);
     }
+
+
+
+
 }
