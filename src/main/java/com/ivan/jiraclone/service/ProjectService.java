@@ -30,8 +30,9 @@ public class ProjectService {
         return dtos;
     }
 
-    public Project createProject(Project project) {
-        return projectRepository.save(project);
+    public ProjectDTO createProject(Project project) {
+        Project saved = projectRepository.save(project);
+        return convertToDTO(saved);
     }
 
     public Project updateProject(Long id, Project project) {

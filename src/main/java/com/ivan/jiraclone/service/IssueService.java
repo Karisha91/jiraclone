@@ -64,6 +64,7 @@ public class IssueService {
         dto.setDescription(issue.getDescription());
         dto.setPriority(issue.getPriority());
         dto.setStatus(issue.getStatus());
+        dto.setProjectId(issue.getProject().getId());
         return dto;
    }
 

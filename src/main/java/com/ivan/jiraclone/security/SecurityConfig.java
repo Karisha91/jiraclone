@@ -37,6 +37,7 @@ public class SecurityConfig {
     @Bean //#10 This is the most important method. SecurityFilterChain is the rulebook — it defines exactly how Spring Security behaves for every request.
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
+                .cors(cors -> cors.configure(http))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

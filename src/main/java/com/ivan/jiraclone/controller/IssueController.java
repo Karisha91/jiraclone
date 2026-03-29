@@ -46,12 +46,14 @@ public class IssueController {
        return issueService.updateIssue(id, issue);
     }
 
+
     @GetMapping("/project/{projectId}")
     public List<IssueDTO> getIssuesByProjectId(@PathVariable Long projectId) {
         return issueService.getIssuesByProjectId(projectId);
     }
 
-    @GetMapping("/status/{status}")
+    @
+            GetMapping("/status/{status}")
     public List<IssueDTO> getIssuesByStatus(@PathVariable Status status) {
         return issueService.getIssuesByStatus(status);
     }

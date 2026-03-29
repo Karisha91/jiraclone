@@ -16,5 +16,6 @@ public class IssueDTO {
     private String projectName;
     private String reporterUsername;
     private String assigneeUsername;
+    private Long projectId;
 
 }
