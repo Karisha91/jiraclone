@@ -5,9 +5,11 @@ import com.ivan.jiraclone.Repository.CommentRepository;
 import com.ivan.jiraclone.dto.CommentDTO;
 import com.ivan.jiraclone.model.Comment;
 import com.ivan.jiraclone.model.Project;
+import com.ivan.jiraclone.model.User;
 import org.springframework.stereotype.Service;
 
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +17,11 @@ import java.util.List;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final UserService userService;
 
-    public CommentService(CommentRepository commentRepository) {
+    public CommentService(CommentRepository commentRepository, UserService userService) {
         this.commentRepository = commentRepository;
+        this.userService = userService;
     }
 
     public List<CommentDTO> getCommentsByIssueId(Long issueId){
@@ -53,7 +57,11 @@ public class CommentService {
     }
 
 
-    public Comment addComment(Comment comment) {
+    public Comment addComment(Comment comment ,Principal principal) {
+        String username = principal.getName();
+        User user = userService.findByUsername(username);
+        comment.setAuthor(user);
+        comment.setCreatedAt(java.time.LocalDateTime.now());
         return commentRepository.save(comment);
 
     }

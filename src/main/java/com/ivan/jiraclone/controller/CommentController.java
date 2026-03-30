@@ -3,9 +3,12 @@ package com.ivan.jiraclone.controller;
 
 import com.ivan.jiraclone.dto.CommentDTO;
 import com.ivan.jiraclone.model.Comment;
+import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.service.CommentService;
+import com.ivan.jiraclone.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -13,10 +16,12 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserService userService;
 
 
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, UserService userService) {
         this.commentService = commentService;
+        this.userService = userService;
     }
 
     @GetMapping("/{id}")
@@ -35,8 +40,8 @@ public class CommentController {
 
 
     @PostMapping
-    public Comment addComment(@RequestBody Comment comment) {
-       return commentService.addComment(comment);
+    public CommentDTO addComment(@RequestBody Comment comment, Principal principal) {
+        return commentService.convertCommentToDTO(commentService.addComment(comment, principal));
     }
 
 
