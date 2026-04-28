@@ -1,3 +1,4 @@
+
 # Stage 1: Build stage - we use Maven + Java 21 to compile our app
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 # Set the working directory inside the container - all commands run from here
@@ -22,6 +23,10 @@ COPY --from=build /app/target/*.jar app.jar
 
 # Tell Docker this container listens on port 8080
 EXPOSE 8080
+
+ENV SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+ENV SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+ENV SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
 
 # The command that runs when the container starts
 ENTRYPOINT ["java", "-jar", "app.jar"]
