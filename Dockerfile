@@ -26,4 +26,4 @@ EXPOSE 8080
 
 
 # The command that runs when the container starts
-ENTRYPOINT ["java", "-jar", "app.jar", "--spring.config.location=/etc/secrets/application.properties"]
+ENTRYPOINT ["java", "-jar", "app.jar", "--spring.config.location=file:/etc/secrets/application.properties"]
