@@ -24,9 +24,10 @@ COPY --from=build /app/target/*.jar app.jar
 # Tell Docker this container listens on port 8080
 EXPOSE 8080
 
-ENV SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
-ENV SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
-ENV SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
 
 # The command that runs when the container starts
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", \
+  "-jar", "app.jar", \
+  "--spring.datasource.url=${SPRING_DATASOURCE_URL}", \
+  "--spring.datasource.username=${SPRING_DATASOURCE_USERNAME}", \
+  "--spring.datasource.password=${SPRING_DATASOURCE_PASSWORD}"]
