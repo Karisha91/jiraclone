@@ -14,10 +14,12 @@ import java.util.List;
 public class IssueService {
 
     private final IssueRepository issueRepository;
+    private final NotificationService notificationService;
 
 
-    public IssueService(IssueRepository issueRepository) {
+    public IssueService(IssueRepository issueRepository, NotificationService notificationService) {
         this.issueRepository = issueRepository;
+        this.notificationService = notificationService;
     }
 
     public Issue addIssue(Issue issue) {
@@ -50,8 +52,26 @@ public class IssueService {
         existing.setDescription(issue.getDescription());
         existing.setPriority(issue.getPriority());
         existing.setStatus(issue.getStatus());
-        return issueRepository.save(existing);
 
+        System.out.println("Incoming assignee: " + issue.getAssignee());
+        System.out.println("Existing assignee: " + existing.getAssignee());
+
+        if (issue.getAssignee() != null) {
+            boolean assigneeChanged = existing.getAssignee() == null ||
+                    !existing.getAssignee().getId().equals(issue.getAssignee().getId());
+
+            System.out.println("Assignee changed: " + assigneeChanged);
+
+            if (assigneeChanged) {
+                existing.setAssignee(issue.getAssignee());
+                notificationService.sendNotification(
+                        issue.getAssignee().getId(),
+                        "You have been assigned to: " + issue.getTitle()
+                );
+            }
+        }
+
+        return issueRepository.save(existing);
     }
 
    public IssueDTO convertToDTO(Issue issue) {
