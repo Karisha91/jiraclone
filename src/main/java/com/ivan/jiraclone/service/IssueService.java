@@ -53,8 +53,6 @@ public class IssueService {
         existing.setPriority(issue.getPriority());
         existing.setStatus(issue.getStatus());
 
-        System.out.println("Incoming assignee: " + issue.getAssignee());
-        System.out.println("Existing assignee: " + existing.getAssignee());
 
         if (issue.getAssignee() != null) {
             boolean assigneeChanged = existing.getAssignee() == null ||
