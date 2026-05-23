@@ -6,6 +6,7 @@ import com.ivan.jiraclone.dto.IssueDTO;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.service.IssueService;
+import com.ivan.jiraclone.service.NotificationService;
 import com.ivan.jiraclone.service.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,8 @@ public class IssueServiceTest {
     @BeforeEach
     public void setup() {
         issueRepository = Mockito.mock(IssueRepository.class);
-        issueService = new IssueService(issueRepository);
+        NotificationService notificationService = Mockito.mock(NotificationService.class);
+        issueService = new IssueService(issueRepository, notificationService);
     }
 
     @Test
