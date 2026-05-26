@@ -55,16 +55,16 @@ public class IssueService {
 
 
         if (issue.getAssignee() != null) {
+            System.out.println("Assignee incoming: " + issue.getAssignee().getId());
             boolean assigneeChanged = existing.getAssignee() == null ||
                     !existing.getAssignee().getId().equals(issue.getAssignee().getId());
 
-            System.out.println("Assignee changed: " + assigneeChanged);
 
             if (assigneeChanged) {
                 existing.setAssignee(issue.getAssignee());
                 notificationService.sendNotification(
                         issue.getAssignee().getId(),
-                        "You have been assigned to: " + issue.getTitle()
+                        "You have been assigned to: " + issue.getTitle(), id
                 );
             }
         }
