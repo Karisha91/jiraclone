@@ -1,6 +1,7 @@
 package com.ivan.jiraclone.service;
 
 
+import com.ivan.jiraclone.dto.NotificationDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +16,11 @@ public class NotificationService {
     }
 
 
-    public void sendNotification(Long userId, String message) {
-        System.out.println("Sending notification to userId: " + userId + " message: " + message);
+    public void sendNotification(Long userId, String message, Long issueId) {
+        NotificationDTO notification = new NotificationDTO(message, issueId);
         messagingTemplate.convertAndSend(
                 "/queue/notifications/" + userId,
-                message
+                notification
         );
     }
 
