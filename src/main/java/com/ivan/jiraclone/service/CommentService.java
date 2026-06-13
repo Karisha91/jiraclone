@@ -6,6 +6,9 @@ import com.ivan.jiraclone.dto.CommentDTO;
 import com.ivan.jiraclone.model.Comment;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
@@ -31,6 +34,11 @@ public class CommentService {
             commentDTOS.add(convertCommentToDTO(comment));
         }
         return commentDTOS;
+    }
+    public Page<CommentDTO> getCommentsByIssueId(Long issueId, Pageable pageable){
+        Page<Comment> comments = commentRepository.findByIssueId(issueId, pageable);
+        return comments.map(this::convertCommentToDTO);
+
     }
 
     public List<CommentDTO> getAllComments(){
