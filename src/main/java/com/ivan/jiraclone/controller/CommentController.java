@@ -6,6 +6,9 @@ import com.ivan.jiraclone.model.Comment;
 import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.service.CommentService;
 import com.ivan.jiraclone.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -25,8 +28,11 @@ public class CommentController {
     }
 
     @GetMapping("/{id}")
-    public List<CommentDTO> getCommentsByIssueId(@PathVariable Long id) {
-        return commentService.getCommentsByIssueId(id);
+    public Page<CommentDTO> getCommentsByIssueId(@PathVariable Long id,
+                                                 @RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return commentService.getCommentsByIssueId(id, pageable);
     }
     @GetMapping
     public List<CommentDTO> getAllComments() {
