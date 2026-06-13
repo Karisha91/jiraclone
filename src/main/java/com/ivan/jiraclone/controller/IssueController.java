@@ -5,7 +5,9 @@ import com.ivan.jiraclone.dto.IssueDTO;
 import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.service.IssueService;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -48,8 +50,11 @@ public class IssueController {
 
 
     @GetMapping("/project/{projectId}")
-    public List<IssueDTO> getIssuesByProjectId(@PathVariable Long projectId) {
-        return issueService.getIssuesByProjectId(projectId);
+    public Page<IssueDTO> getIssuesByProjectId(@PathVariable Long projectId,
+                                               @RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        return issueService.getIssuesByProjectId(projectId, pageable);
     }
 
     @

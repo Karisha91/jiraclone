@@ -5,6 +5,8 @@ import com.ivan.jiraclone.Repository.IssueRepository;
 import com.ivan.jiraclone.dto.IssueDTO;
 import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -93,6 +95,11 @@ public class IssueService {
             dtos.add(convertToDTO(issue));
         }
         return dtos;
+   }
+
+   public Page<IssueDTO> getIssuesByProjectId(Long projectId, Pageable pageable) {
+       Page<Issue> issues = issueRepository.findByProjectId(projectId, pageable);
+       return issues.map(this::convertToDTO);
    }
 
    public List<IssueDTO> getIssuesByStatus(Status status) {
