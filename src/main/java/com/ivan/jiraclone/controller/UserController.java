@@ -1,6 +1,7 @@
 package com.ivan.jiraclone.controller;
 
 
+import com.ivan.jiraclone.dto.UserDTO;
 import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.service.UserService;
 import lombok.Data;
@@ -21,6 +22,11 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/developers")
+    public List<UserDTO> getDevelopers() {
+        return userService.getDevelopers();
     }
 
     @GetMapping("/{id}")
