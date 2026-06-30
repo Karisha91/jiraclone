@@ -5,6 +5,7 @@ import com.ivan.jiraclone.Repository.IssueRepository;
 import com.ivan.jiraclone.dto.IssueDTO;
 import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
+import com.ivan.jiraclone.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,11 +18,13 @@ public class IssueService {
 
     private final IssueRepository issueRepository;
     private final NotificationService notificationService;
+    private final UserService userService;
 
 
-    public IssueService(IssueRepository issueRepository, NotificationService notificationService) {
+    public IssueService(IssueRepository issueRepository, NotificationService notificationService, UserService userService) {
         this.issueRepository = issueRepository;
         this.notificationService = notificationService;
+        this.userService = userService;
     }
 
     public Issue addIssue(Issue issue) {
@@ -36,7 +39,7 @@ public class IssueService {
         return dtos;
     }
     public Issue getIssueById(Long id) {
-        return issueRepository.findById(id).orElseThrow(() -> new RuntimeException("Issue with id: " + id));
+        return issueRepository.findById(id).orElseThrow(() -> new RuntimeException("Issue not found with id: " + id));
     }
 
     public IssueDTO getIssueDTOById(Long id) {
@@ -131,5 +134,16 @@ public class IssueService {
     }
 
 
-    
+    public IssueDTO assignIssue(Long id, Long assigneeId) {
+        Issue issue = getIssueById(id);
+        User user = userService.getUserById(assigneeId);
+        issue.setAssignee(user);
+        issueRepository.save(issue);
+        notificationService.sendNotification(
+                assigneeId,
+                "You have been assigned to: " + issue.getTitle(), id
+        );
+        return convertToDTO(issue);
+
+    }
 }

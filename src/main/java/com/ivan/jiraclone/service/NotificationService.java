@@ -72,5 +72,7 @@ public class NotificationService {
         notificationRepository.save(notification);
         return new NotificationDTO(notification.getMessage(), notification.getIssue().getId(), notification.getId(), notification.isRead());
     }
+
+
 }
 

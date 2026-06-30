@@ -1,6 +1,7 @@
 package com.ivan.jiraclone.controller;
 
 
+import com.ivan.jiraclone.dto.AssignRequest;
 import com.ivan.jiraclone.dto.IssueDTO;
 import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
@@ -70,6 +71,13 @@ public class IssueController {
     @GetMapping("assignee/{assigneeId}")
     public List<IssueDTO> getIssuesByAssigneeId(@PathVariable Long assigneeId) {
         return issueService.getIssuesByAssigneeId(assigneeId);
+    }
+
+    @PutMapping("/{id}/assign")
+    public IssueDTO assignIssue(@PathVariable Long id,@RequestBody AssignRequest assignRequest) {
+        return issueService.assignIssue(id, assignRequest.getAssigneeId());
+
+
     }
 
 
