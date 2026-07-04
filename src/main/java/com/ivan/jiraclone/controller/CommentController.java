@@ -9,6 +9,7 @@ import com.ivan.jiraclone.service.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -19,12 +20,12 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
-    private final UserService userService;
 
 
-    public CommentController(CommentService commentService, UserService userService) {
+
+    public CommentController(CommentService commentService) {
         this.commentService = commentService;
-        this.userService = userService;
+
     }
 
     @GetMapping("/{id}")
@@ -34,17 +35,18 @@ public class CommentController {
         Pageable pageable = PageRequest.of(page, size);
         return commentService.getCommentsByIssueId(id, pageable);
     }
+
     @GetMapping
     public List<CommentDTO> getAllComments() {
         return commentService.getAllComments();
     }
-
+    @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteCommentById(@PathVariable Long id){
         commentService.deleteCommentById(id);
     }
 
-
+    @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @PostMapping
     public CommentDTO addComment(@RequestBody Comment comment, Principal principal) {
         return commentService.convertCommentToDTO(commentService.addComment(comment, principal));

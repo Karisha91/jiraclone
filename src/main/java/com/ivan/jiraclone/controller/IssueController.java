@@ -7,6 +7,7 @@ import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.service.IssueService;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 
@@ -32,18 +33,19 @@ public class IssueController {
     public IssueDTO getIssueById(@PathVariable Long id) {
         return issueService.getIssueDTOById(id);
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteIssueById(@PathVariable Long id) {
         issueService.deleteIssueById(id);
     }
 
-
+    @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @PostMapping
     public Issue createIssue(@RequestBody Issue issue) {
 
         return issueService.addIssue(issue);
     }
+    @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     public Issue updateIssue(@PathVariable Long id,@RequestBody Issue issue) {
        return issueService.updateIssue(id, issue);
@@ -58,8 +60,7 @@ public class IssueController {
         return issueService.getIssuesByProjectId(projectId, pageable);
     }
 
-    @
-            GetMapping("/status/{status}")
+    @GetMapping("/status/{status}")
     public List<IssueDTO> getIssuesByStatus(@PathVariable Status status) {
         return issueService.getIssuesByStatus(status);
     }
@@ -72,7 +73,7 @@ public class IssueController {
     public List<IssueDTO> getIssuesByAssigneeId(@PathVariable Long assigneeId) {
         return issueService.getIssuesByAssigneeId(assigneeId);
     }
-
+    @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @PutMapping("/{id}/assign")
     public IssueDTO assignIssue(@PathVariable Long id,@RequestBody AssignRequest assignRequest) {
         return issueService.assignIssue(id, assignRequest.getAssigneeId());
