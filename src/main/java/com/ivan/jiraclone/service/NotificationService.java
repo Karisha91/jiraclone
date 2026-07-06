@@ -73,6 +73,11 @@ public class NotificationService {
         return new NotificationDTO(notification.getMessage(), notification.getIssue().getId(), notification.getId(), notification.isRead());
     }
 
+    public void deleteNotificationsByIssueId(Long id) {
+        List<Notification> notifications = notificationRepository.findByIssueId(id);
+        notificationRepository.deleteAll(notifications);
+    }
+
 
 }
 

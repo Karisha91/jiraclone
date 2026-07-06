@@ -48,6 +48,7 @@ public class IssueService {
 
     public void deleteIssueById(Long id) {
         Issue issue = getIssueById(id);
+        notificationService.deleteNotificationsByIssueId(id);
         issueRepository.delete(issue);
     }
 
@@ -88,6 +89,7 @@ public class IssueService {
         dto.setPriority(issue.getPriority());
         dto.setStatus(issue.getStatus());
         dto.setProjectId(issue.getProject().getId());
+
         return dto;
    }
 
