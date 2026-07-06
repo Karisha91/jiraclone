@@ -4,7 +4,12 @@ package com.ivan.jiraclone.service;
 import com.ivan.jiraclone.Repository.UserRepository;
 import com.ivan.jiraclone.dto.UserDTO;
 import com.ivan.jiraclone.model.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +18,12 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CloudinaryService cloudinaryService;
 
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, CloudinaryService cloudinaryService) {
         this.userRepository = userRepository;
+        this.cloudinaryService = cloudinaryService;
     }
 
     public List<User> getAllUsers() {
@@ -50,8 +57,21 @@ public class UserService {
             dto.setId(user.getId());
             dto.setUsername(user.getUsername());
             dtos.add(dto);
+            dto.setAvatarUrl(user.getAvatarUrl());
         }
         return dtos;
     }
 
+    public ResponseEntity<?> uploadAvatar(Long id, @RequestPart MultipartFile avatar) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        user.setAvatarUrl(cloudinaryService.upload(avatar));
+        userRepository.save(user);
+        return ResponseEntity.ok("Avatar uploaded successfully");
+    }
+
+    public String getAvatar(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        return user.getAvatarUrl();
+
+    }
 }
