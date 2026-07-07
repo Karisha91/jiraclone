@@ -32,6 +32,7 @@ public class CommentServiceTest {
 
         commentRepository = Mockito.mock(CommentRepository.class);
         userService = Mockito.mock(UserService.class);
+        principal = Mockito.mock(Principal.class);
         commentService = new CommentService(commentRepository,userService);
 
     }
