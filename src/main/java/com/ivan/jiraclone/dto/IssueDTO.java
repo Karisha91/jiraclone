@@ -17,5 +17,7 @@ public class IssueDTO {
     private String reporterUsername;
     private String assigneeUsername;
     private Long projectId;
+    private String assigneeAvatarUrl;
+    private String reporterAvatarUrl;
 
 }

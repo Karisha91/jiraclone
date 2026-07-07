@@ -89,6 +89,8 @@ public class IssueService {
         dto.setPriority(issue.getPriority());
         dto.setStatus(issue.getStatus());
         dto.setProjectId(issue.getProject().getId());
+        dto.setAssigneeAvatarUrl(issue.getAssignee() != null ? issue.getAssignee().getAvatarUrl() : null);
+        dto.setReporterAvatarUrl(issue.getReporter() != null ? issue.getReporter().getAvatarUrl() : null);
 
         return dto;
    }

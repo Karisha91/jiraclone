@@ -24,6 +24,7 @@ public class CommentServiceTest {
     private CommentService commentService;
     private UserService userService;
     private CommentRepository commentRepository;
+    private Principal principal;
 
 
     @BeforeEach
@@ -69,7 +70,7 @@ public class CommentServiceTest {
         comment.setContent("Test comment");
         comment.setIssue(new Issue());
         Mockito.when(commentRepository.findByIssueId(1L)).thenReturn(java.util.List.of(comment));
-        commentService.deleteCommentById(1L);
+        commentService.deleteCommentById(1L,  principal);
         Mockito.verify(commentRepository,Mockito.times(1)).deleteById(1L);
     }
 
