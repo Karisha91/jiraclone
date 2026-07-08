@@ -27,5 +27,5 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     List<Issue> findByAssignee(@Param("assigneeId") Long assigneeId);
 
 
-
+    List<Issue> findByAssigneeUsername(String username);
 }

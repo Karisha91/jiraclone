@@ -10,5 +10,6 @@ public class CommentDTO {
     private String content;
     private LocalDateTime createdAt;
     private String author;
+    private String authorAvatarUrl;
 
 }

@@ -30,6 +30,7 @@ public class IssueService {
     public Issue addIssue(Issue issue) {
         return issueRepository.save(issue);
     }
+
     public List<IssueDTO> getAllIssues() {
         List<Issue> issues = issueRepository.findAll();
         List<IssueDTO> dtos = new ArrayList<>();
@@ -38,6 +39,7 @@ public class IssueService {
         }
         return dtos;
     }
+
     public Issue getIssueById(Long id) {
         return issueRepository.findById(id).orElseThrow(() -> new RuntimeException("Issue not found with id: " + id));
     }
@@ -78,7 +80,7 @@ public class IssueService {
         return issueRepository.save(existing);
     }
 
-   public IssueDTO convertToDTO(Issue issue) {
+    public IssueDTO convertToDTO(Issue issue) {
         IssueDTO dto = new IssueDTO();
         dto.setId(issue.getId());
         dto.setProjectName(issue.getProject().getName());
@@ -89,32 +91,34 @@ public class IssueService {
         dto.setPriority(issue.getPriority());
         dto.setStatus(issue.getStatus());
         dto.setProjectId(issue.getProject().getId());
+        dto.setAssigneeAvatarUrl(issue.getAssignee() != null ? issue.getAssignee().getAvatarUrl() : null);
+        dto.setReporterAvatarUrl(issue.getReporter() != null ? issue.getReporter().getAvatarUrl() : null);
 
         return dto;
-   }
+    }
 
-   public List<IssueDTO> getIssuesByProjectId(Long projectId) {
+    public List<IssueDTO> getIssuesByProjectId(Long projectId) {
         List<Issue> issues = issueRepository.findByProjectId(projectId);
         List<IssueDTO> dtos = new ArrayList<>();
         for (Issue issue : issues) {
             dtos.add(convertToDTO(issue));
         }
         return dtos;
-   }
+    }
 
-   public Page<IssueDTO> getIssuesByProjectId(Long projectId, Pageable pageable) {
-       Page<Issue> issues = issueRepository.findByProjectId(projectId, pageable);
-       return issues.map(this::convertToDTO);
-   }
+    public Page<IssueDTO> getIssuesByProjectId(Long projectId, Pageable pageable) {
+        Page<Issue> issues = issueRepository.findByProjectId(projectId, pageable);
+        return issues.map(this::convertToDTO);
+    }
 
-   public List<IssueDTO> getIssuesByStatus(Status status) {
+    public List<IssueDTO> getIssuesByStatus(Status status) {
         List<Issue> issues = issueRepository.findByStatus(status);
         List<IssueDTO> dtos = new ArrayList<>();
         for (Issue issue : issues) {
             dtos.add(convertToDTO(issue));
         }
         return dtos;
-   }
+    }
 
     public List<IssueDTO> getIssuesByProjectIdAndStatus(Long projectId, Status status) {
         List<Issue> issues = issueRepository.findByProjectIdAndStatus(projectId, status);
@@ -147,5 +151,16 @@ public class IssueService {
         );
         return convertToDTO(issue);
 
+    }
+
+    public List<IssueDTO> getIssuesAssignedToUser(String username) {
+        List<Issue> issues = issueRepository.findByAssigneeUsername(username);
+        List<IssueDTO> dtos = new ArrayList<>();
+        for (Issue issue : issues) {
+            dtos.add(convertToDTO(issue));
+
+        }
+
+        return dtos;
     }
 }

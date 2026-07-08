@@ -56,15 +56,25 @@ public class CommentService {
         commentDTO.setCreatedAt(comment.getCreatedAt());
         commentDTO.setContent(comment.getContent());
         commentDTO.setAuthor(comment.getAuthor() != null ? comment.getAuthor().getUsername() : null);
+        commentDTO.setAuthorAvatarUrl(comment.getAuthor() != null ? comment.getAuthor().getAvatarUrl() : null);
         return commentDTO;
 
     }
 
-    public void deleteCommentById(Long id){
-        commentRepository.deleteById(id);
+    public void deleteCommentById(Long id , Principal principal){
+        String username = principal.getName();
+        User user = userService.findByUsername(username);
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
+        if(user.getRole().equals("ADMIN") || comment.getAuthor().getId().equals(user.getId())){
+            commentRepository.deleteById(id);
+        }
+        else{
+            throw new RuntimeException("You are not authorized to delete this comment");
+        }
+
     }
 
-    // test test comment
+
     public Comment addComment(Comment comment ,Principal principal) {
         String username = principal.getName();
         User user = userService.findByUsername(username);

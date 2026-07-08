@@ -42,8 +42,8 @@ public class CommentController {
     }
     @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public void deleteCommentById(@PathVariable Long id){
-        commentService.deleteCommentById(id);
+    public void deleteCommentById(@PathVariable Long id, Principal principal) {
+        commentService.deleteCommentById(id, principal);
     }
 
     @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")

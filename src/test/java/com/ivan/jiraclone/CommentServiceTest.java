@@ -9,7 +9,6 @@ import com.ivan.jiraclone.service.CommentService;
 import com.ivan.jiraclone.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.security.Principal;
@@ -19,20 +18,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommentServiceTest {
 
-
-
     private CommentService commentService;
     private UserService userService;
     private CommentRepository commentRepository;
-
+    private Principal principal;
 
     @BeforeEach
     public void setUp(){
-
         commentRepository = Mockito.mock(CommentRepository.class);
         userService = Mockito.mock(UserService.class);
-        commentService = new CommentService(commentRepository,userService);
-
+        principal = Mockito.mock(Principal.class);
+        commentService = new CommentService(commentRepository, userService);
     }
 
     @Test
@@ -47,7 +43,6 @@ public class CommentServiceTest {
 
         assertEquals(1, commentsDto.size());
         assertEquals("Test comment", commentsDto.get(0).getContent());
-
     }
 
     @Test
@@ -64,19 +59,28 @@ public class CommentServiceTest {
 
     @Test
     void deleteCommentById(){
+        User author = new User();
+        author.setId(1L);
+        author.setUsername("ivan");
+        author.setRole("ADMIN");
+
         Comment comment = new Comment();
         comment.setId(1L);
         comment.setContent("Test comment");
         comment.setIssue(new Issue());
-        Mockito.when(commentRepository.findByIssueId(1L)).thenReturn(java.util.List.of(comment));
-        commentService.deleteCommentById(1L);
-        Mockito.verify(commentRepository,Mockito.times(1)).deleteById(1L);
+        comment.setAuthor(author);
+
+        Mockito.when(principal.getName()).thenReturn("ivan");
+        Mockito.when(userService.findByUsername("ivan")).thenReturn(author);
+        Mockito.when(commentRepository.findById(1L)).thenReturn(java.util.Optional.of(comment));
+
+        commentService.deleteCommentById(1L, principal);
+
+        Mockito.verify(commentRepository, Mockito.times(1)).deleteById(1L);
     }
 
     @Test
     void addComment(){
-
-
         Principal principal = Mockito.mock(Principal.class);
         Mockito.when(principal.getName()).thenReturn("ivan");
 
@@ -96,12 +100,6 @@ public class CommentServiceTest {
         Mockito.when(commentRepository.save(Mockito.any(Comment.class))).thenReturn(comment);
         commentService.addComment(comment, principal);
 
-
-        Mockito.verify(commentRepository,Mockito.times(1)).save(Mockito.any(Comment.class));
-
-
-
-
-
+        Mockito.verify(commentRepository, Mockito.times(1)).save(Mockito.any(Comment.class));
     }
 }

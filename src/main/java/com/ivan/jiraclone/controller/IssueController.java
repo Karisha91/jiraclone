@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -80,8 +81,14 @@ public class IssueController {
 
 
     }
-
-
-
-
+    @GetMapping("/my-assigned")
+    public List<IssueDTO> getIssuesAssignedToMe(Principal principal) {
+        String username = principal.getName();
+        return issueService.getIssuesAssignedToUser(username);
+    }
 }
+
+
+
+
+
