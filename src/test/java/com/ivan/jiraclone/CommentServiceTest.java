@@ -62,6 +62,7 @@ public class CommentServiceTest {
         User author = new User();
         author.setId(1L);
         author.setUsername("ivan");
+        author.setRole("ADMIN");
 
         Comment comment = new Comment();
         comment.setId(1L);
