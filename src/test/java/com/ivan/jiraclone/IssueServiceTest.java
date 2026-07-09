@@ -122,7 +122,7 @@ public class IssueServiceTest {
         Mockito.when(issueRepository.findById(issue.getId())).thenReturn(Optional.of(issue));
         Mockito.when(issueRepository.save(issue)).thenReturn(issue);
 
-        Issue result = issueService.updateIssue(issue.getId(), updatedIssue, principal);
+        Issue result = issueService.updateIssue(issue.getId(), updatedIssue);
 
         assertEquals(issue, result);
         Mockito.verify(issueRepository, Mockito.times(1)).save(issue);
