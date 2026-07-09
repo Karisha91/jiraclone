@@ -3,11 +3,13 @@ package com.ivan.jiraclone;
 import com.ivan.jiraclone.Repository.ProjectRepository;
 import com.ivan.jiraclone.dto.ProjectDTO;
 import com.ivan.jiraclone.model.Project;
+import com.ivan.jiraclone.service.AuditLogService;
 import com.ivan.jiraclone.service.ProjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,18 +18,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ProjectServiceTest {
 
-
     private ProjectRepository projectRepository;
     private ProjectService projectService;
-
-
+    private AuditLogService auditLogService;
+    private Principal principal;
 
     @BeforeEach
     void setUp() {
         projectRepository = Mockito.mock(ProjectRepository.class);
-        projectService = new ProjectService(projectRepository);
+        auditLogService = Mockito.mock(AuditLogService.class);
+        principal = Mockito.mock(Principal.class);
+        Mockito.when(principal.getName()).thenReturn("admin");
+        projectService = new ProjectService(projectRepository, auditLogService);
     }
-
 
     @Test
     void getAllProjects() {
@@ -45,16 +48,13 @@ public class ProjectServiceTest {
         projects.add(project1);
         projects.add(project2);
 
-
         Mockito.when(projectRepository.findAll()).thenReturn(projects);
         List<ProjectDTO> dtos = projectService.getAllProjects();
 
         assertEquals(2, dtos.size());
         assertEquals("E-commerce App", dtos.get(0).getProjectName());
         assertEquals("Mobile Game", dtos.get(1).getProjectName());
-
     }
-
 
     @Test
     void getProjectById() {
@@ -67,7 +67,6 @@ public class ProjectServiceTest {
         Project result = projectService.getProjectById(1L);
 
         assertEquals(project, result);
-
     }
 
     @Test
@@ -76,10 +75,9 @@ public class ProjectServiceTest {
         project.setName("E-commerce App");
         project.setDescription("Online store");
         Mockito.when(projectRepository.save(project)).thenReturn(project);
-        ProjectDTO projectDTO = projectService.createProject(project);
+        ProjectDTO projectDTO = projectService.createProject(project, principal);
         assertEquals(project.getName(), projectDTO.getProjectName());
         Mockito.verify(projectRepository, Mockito.times(1)).save(project);
-
     }
 
     @Test
@@ -93,34 +91,30 @@ public class ProjectServiceTest {
         updatedProject.setName("Updated name");
         updatedProject.setDescription("Updated description");
 
-
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(existingProject));
         Mockito.when(projectRepository.save(existingProject)).thenReturn(existingProject);
 
-        Project result = projectService.updateProject(1L, updatedProject);
-
-
+        Project result = projectService.updateProject(1L, updatedProject, principal);
 
         assertEquals("Updated description", existingProject.getDescription());
         assertEquals("Updated name", existingProject.getName());
-
         assertEquals(updatedProject.getDescription(), result.getDescription());
         assertEquals(existingProject.getId(), result.getId());
 
         Mockito.verify(projectRepository, Mockito.times(1)).save(existingProject);
-
-
-
     }
 
     @Test
     void deleteProject() {
+        Long projectId = 1L;
         Project existingProject = new Project();
-        existingProject.setId(1L);
+        existingProject.setId(projectId);
 
-        projectService.deleteProject(1L);
-        Mockito.verify(projectRepository, Mockito.times(1)).deleteById(existingProject.getId());
+        Mockito.when(projectRepository.findById(projectId))
+                .thenReturn(Optional.of(existingProject));
 
+        projectService.deleteProject(projectId, principal);
+        Mockito.verify(projectRepository, Mockito.times(1)).deleteById(projectId);
     }
 
     @Test

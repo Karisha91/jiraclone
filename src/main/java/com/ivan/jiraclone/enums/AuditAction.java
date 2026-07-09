@@ -1,0 +1,14 @@
+package com.ivan.jiraclone.enums;
+
+public enum AuditAction {
+    PROJECT_CREATED,
+    PROJECT_UPDATED,
+    PROJECT_DELETED,
+    ISSUE_CREATED,
+    ISSUE_UPDATED,
+    ISSUE_DELETED,
+    ISSUE_ASSIGNED,
+    COMMENT_CREATED,
+    COMMENT_DELETED,
+    ROLE_CHANGED
+}

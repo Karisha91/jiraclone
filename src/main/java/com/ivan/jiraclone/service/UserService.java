@@ -3,6 +3,7 @@ package com.ivan.jiraclone.service;
 
 import com.ivan.jiraclone.Repository.UserRepository;
 import com.ivan.jiraclone.dto.UserDTO;
+import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.model.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     public void deleteUserById(Long id) {
@@ -43,7 +44,7 @@ public class UserService {
         return userRepository.save(user);
     }
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found: " + username));
+        return userRepository.findByUsername(username).orElseThrow(() ->  new ResourceNotFoundException("User not found: " + username));
     }
 
     public List<UserDTO> getDevelopers() {
@@ -63,14 +64,14 @@ public class UserService {
     }
 
     public ResponseEntity<?> uploadAvatar(Long id, @RequestPart MultipartFile avatar) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        User user = userRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("User not found with id: " + id));
         user.setAvatarUrl(cloudinaryService.upload(avatar));
         userRepository.save(user);
         return ResponseEntity.ok("Avatar uploaded successfully");
     }
 
     public String getAvatar(Long id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        User user = userRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("User not found with id: " + id));
         return user.getAvatarUrl();
 
     }
