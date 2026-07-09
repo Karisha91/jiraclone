@@ -4,12 +4,15 @@ package com.ivan.jiraclone.service;
 import com.ivan.jiraclone.Repository.IssueRepository;
 import com.ivan.jiraclone.dto.IssueDTO;
 import com.ivan.jiraclone.enums.Status;
+import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.ivan.jiraclone.enums.AuditAction;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,16 +22,20 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final NotificationService notificationService;
     private final UserService userService;
+    private final AuditLogService auditLogService;
 
 
-    public IssueService(IssueRepository issueRepository, NotificationService notificationService, UserService userService) {
+    public IssueService(IssueRepository issueRepository, NotificationService notificationService, UserService userService,AuditLogService auditLogService) {
         this.issueRepository = issueRepository;
         this.notificationService = notificationService;
         this.userService = userService;
+        this.auditLogService = auditLogService;
     }
 
-    public Issue addIssue(Issue issue) {
-        return issueRepository.save(issue);
+    public Issue addIssue(Issue issue, Principal principal) {
+        Issue saved = issueRepository.save(issue);
+        auditLogService.logAction(principal.getName(), AuditAction.ISSUE_CREATED, "Issue", saved.getId(), saved.getTitle());
+        return saved;
     }
 
     public List<IssueDTO> getAllIssues() {
@@ -41,16 +48,17 @@ public class IssueService {
     }
 
     public Issue getIssueById(Long id) {
-        return issueRepository.findById(id).orElseThrow(() -> new RuntimeException("Issue not found with id: " + id));
+        return issueRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("Issue not found with id: " + id));
     }
 
     public IssueDTO getIssueDTOById(Long id) {
         return convertToDTO(getIssueById(id));
     }
 
-    public void deleteIssueById(Long id) {
+    public void deleteIssueById(Long id, Principal principal) {
         Issue issue = getIssueById(id);
         notificationService.deleteNotificationsByIssueId(id);
+        auditLogService.logAction(principal.getName(), AuditAction.ISSUE_DELETED, "Issue", issue.getId(), issue.getTitle());
         issueRepository.delete(issue);
     }
 
@@ -63,7 +71,6 @@ public class IssueService {
 
 
         if (issue.getAssignee() != null) {
-            System.out.println("Assignee incoming: " + issue.getAssignee().getId());
             boolean assigneeChanged = existing.getAssignee() == null ||
                     !existing.getAssignee().getId().equals(issue.getAssignee().getId());
 
@@ -76,6 +83,7 @@ public class IssueService {
                 );
             }
         }
+        auditLogService.logAction(existing.getReporter().getUsername(), AuditAction.ISSUE_UPDATED, "Issue", existing.getId(), existing.getTitle());
 
         return issueRepository.save(existing);
     }
@@ -140,7 +148,7 @@ public class IssueService {
     }
 
 
-    public IssueDTO assignIssue(Long id, Long assigneeId) {
+    public IssueDTO assignIssue(Long id, Long assigneeId,Principal principal) {
         Issue issue = getIssueById(id);
         User user = userService.getUserById(assigneeId);
         issue.setAssignee(user);
@@ -149,6 +157,7 @@ public class IssueService {
                 assigneeId,
                 "You have been assigned to: " + issue.getTitle(), id
         );
+        auditLogService.logAction(principal.getName(), AuditAction.ISSUE_ASSIGNED, "Issue", issue.getId(), issue.getTitle());
         return convertToDTO(issue);
 
     }

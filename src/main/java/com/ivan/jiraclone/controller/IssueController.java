@@ -36,15 +36,15 @@ public class IssueController {
     }
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public void deleteIssueById(@PathVariable Long id) {
-        issueService.deleteIssueById(id);
+    public void deleteIssueById(@PathVariable Long id, Principal principal) {
+        issueService.deleteIssueById(id, principal);
     }
 
     @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @PostMapping
-    public Issue createIssue(@RequestBody Issue issue) {
+    public Issue createIssue(@RequestBody Issue issue, Principal principal) {
 
-        return issueService.addIssue(issue);
+        return issueService.addIssue(issue, principal);
     }
     @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
@@ -76,8 +76,8 @@ public class IssueController {
     }
     @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @PutMapping("/{id}/assign")
-    public IssueDTO assignIssue(@PathVariable Long id,@RequestBody AssignRequest assignRequest) {
-        return issueService.assignIssue(id, assignRequest.getAssigneeId());
+    public IssueDTO assignIssue(@PathVariable Long id,@RequestBody AssignRequest assignRequest, Principal principal) {
+        return issueService.assignIssue(id, assignRequest.getAssigneeId(), principal);
 
 
     }

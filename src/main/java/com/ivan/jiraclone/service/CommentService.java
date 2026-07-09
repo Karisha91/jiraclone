@@ -3,6 +3,8 @@ package com.ivan.jiraclone.service;
 
 import com.ivan.jiraclone.Repository.CommentRepository;
 import com.ivan.jiraclone.dto.CommentDTO;
+import com.ivan.jiraclone.exception.ResourceNotFoundException;
+import com.ivan.jiraclone.exception.UnauthorizedException;
 import com.ivan.jiraclone.model.Comment;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.model.User;
@@ -64,12 +66,12 @@ public class CommentService {
     public void deleteCommentById(Long id , Principal principal){
         String username = principal.getName();
         User user = userService.findByUsername(username);
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new RuntimeException("Comment not found with id: " + id));
+        Comment comment = commentRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("Comment not found with id: " + id));
         if(user.getRole().equals("ADMIN") || comment.getAuthor().getId().equals(user.getId())){
             commentRepository.deleteById(id);
         }
         else{
-            throw new RuntimeException("You are not authorized to delete this comment");
+            throw new UnauthorizedException("You are not authorized to delete this comment");
         }
 
     }

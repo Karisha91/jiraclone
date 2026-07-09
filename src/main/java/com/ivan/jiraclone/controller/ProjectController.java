@@ -8,6 +8,7 @@ import com.ivan.jiraclone.service.ProjectService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -32,20 +33,20 @@ public class ProjectController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
-    public void deleteProjectById(@PathVariable Long id) {
-        projectService.deleteProject(id);
+    public void deleteProjectById(@PathVariable Long id, Principal principal) {
+        projectService.deleteProject(id, principal);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ProjectDTO createProject(@RequestBody Project project) {
-        return projectService.createProject(project);
+    public ProjectDTO createProject(@RequestBody Project project, Principal principal) {
+        return projectService.createProject(project, principal);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public Project updateProject(@PathVariable Long id, @RequestBody Project project) {
-        return projectService.updateProject(id, project);
+    public Project updateProject(@PathVariable Long id, @RequestBody Project project, Principal principal) {
+        return projectService.updateProject(id, project, principal);
     }
 
 

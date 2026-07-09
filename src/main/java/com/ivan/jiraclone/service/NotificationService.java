@@ -5,6 +5,7 @@ import com.ivan.jiraclone.Repository.IssueRepository;
 import com.ivan.jiraclone.Repository.NotificationRepository;
 import com.ivan.jiraclone.Repository.UserRepository;
 import com.ivan.jiraclone.dto.NotificationDTO;
+import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.model.Notification;
 import com.ivan.jiraclone.model.User;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -45,8 +46,8 @@ public class NotificationService {
     public Notification saveNotification(Long userId, String message, Long issueId) {
         Notification notification = new Notification();
         notification.setMessage(message);
-        notification.setIssue(issueRepository.findById(issueId).orElseThrow(() -> new RuntimeException("Issue not found")));
-        notification.setUser(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found")));
+        notification.setIssue(issueRepository.findById(issueId).orElseThrow(() ->  new ResourceNotFoundException("Issue not found")));
+        notification.setUser(userRepository.findById(userId).orElseThrow(() ->  new ResourceNotFoundException("User not found")));
         notification.setRead(false);
         notification.setCreatedAt(java.time.LocalDateTime.now());
         return notificationRepository.save(notification);
@@ -67,7 +68,7 @@ public class NotificationService {
     }
 
     public NotificationDTO markAsRead(Long id) {
-        Notification notification = notificationRepository.findById(id).orElseThrow(() -> new RuntimeException("Notification not found"));
+        Notification notification = notificationRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("Notification not found"));
         notification.setRead(true);
         notificationRepository.save(notification);
         return new NotificationDTO(notification.getMessage(), notification.getIssue().getId(), notification.getId(), notification.isRead());
