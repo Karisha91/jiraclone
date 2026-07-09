@@ -106,11 +106,15 @@ public class ProjectServiceTest {
 
     @Test
     void deleteProject() {
+        Long projectId = 1L;
         Project existingProject = new Project();
-        existingProject.setId(1L);
+        existingProject.setId(projectId);
 
-        projectService.deleteProject(1L, principal);
-        Mockito.verify(projectRepository, Mockito.times(1)).deleteById(existingProject.getId());
+        Mockito.when(projectRepository.findById(projectId))
+                .thenReturn(Optional.of(existingProject));
+
+        projectService.deleteProject(projectId, principal);
+        Mockito.verify(projectRepository, Mockito.times(1)).deleteById(projectId);
     }
 
     @Test
