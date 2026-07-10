@@ -3,6 +3,7 @@ package com.ivan.jiraclone.service;
 
 import com.ivan.jiraclone.Repository.UserRepository;
 import com.ivan.jiraclone.dto.UserDTO;
+import com.ivan.jiraclone.exception.DuplicateResourceException;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.model.User;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,9 @@ public class UserService {
     }
 
     public User createUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new DuplicateResourceException("User with username " + user.getUsername() + " already exists");
+        }
         return userRepository.save(user);
     }
     public User findByUsername(String username) {
