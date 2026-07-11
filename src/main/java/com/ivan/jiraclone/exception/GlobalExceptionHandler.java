@@ -27,5 +27,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleDuplicateResourceException(DuplicateResourceException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ResponseEntity<String> handleBadCredentialsException(Exception e) {
+        return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
+    }
 
 }
