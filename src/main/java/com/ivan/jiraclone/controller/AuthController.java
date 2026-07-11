@@ -43,8 +43,12 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user, HttpServletRequest request) {
-        String clientIp = request.getRemoteAddr();
-        Bucket bucket = rateLimitService.resolveBucket(clientIp);
+        String clientIP = request.getHeader("X-Forwarded-For");
+
+        if (clientIP == null || clientIP.isEmpty()) {
+            clientIP =request.getRemoteAddr();
+        }
+        Bucket bucket = rateLimitService.resolveBucket(clientIP);
         if (bucket.tryConsume(1)) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             return ResponseEntity.ok(userService.createUser(user));
@@ -58,7 +62,11 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletRequest httpRequest) {
-        String clientIP = httpRequest.getRemoteAddr();
+        String clientIP = httpRequest.getHeader("X-Forwarded-For");
+
+        if (clientIP == null || clientIP.isEmpty()) {
+            clientIP = httpRequest.getRemoteAddr();
+        }
         Bucket bucket = rateLimitService.resolveBucket(clientIP);
         if (bucket.tryConsume(1)) {
             authenticationManager.authenticate(
