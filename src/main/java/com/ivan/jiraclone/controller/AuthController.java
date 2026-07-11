@@ -44,7 +44,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user, HttpServletRequest httpRequest) {
         String clientIP = httpRequest.getHeader("X-FORWARDED-FOR");
-        if (clientIP ==  || clientIP.isEmpty()) {
+        if (clientIP == null || clientIP.isEmpty()) {
             clientIP = httpRequest.getRemoteAddr();
         }
         Bucket bucket = rateLimitService.resolveBucket(clientIP);
@@ -63,7 +63,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletRequest httpRequest) {
         String clientIP = httpRequest.getHeader("X-FORWARDED-FOR");
-        if (clientIP ==  || clientIP.isEmpty()) {
+        if (clientIP == null || clientIP.isEmpty()) {
             clientIP = httpRequest.getRemoteAddr();
         }
         Bucket bucket = rateLimitService.resolveBucket(clientIP);
