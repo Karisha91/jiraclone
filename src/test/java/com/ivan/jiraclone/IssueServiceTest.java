@@ -1,13 +1,18 @@
 package com.ivan.jiraclone;
 
 import com.ivan.jiraclone.Repository.IssueRepository;
+import com.ivan.jiraclone.dto.CreateIssueRequest;
 import com.ivan.jiraclone.dto.IssueDTO;
+import com.ivan.jiraclone.dto.UpdateIssueRequest;
+import com.ivan.jiraclone.enums.Priority;
+import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.service.AuditLogService;
 import com.ivan.jiraclone.service.IssueService;
 import com.ivan.jiraclone.service.NotificationService;
+import com.ivan.jiraclone.service.ProjectService;
 import com.ivan.jiraclone.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +31,7 @@ public class IssueServiceTest {
     private IssueRepository issueRepository;
     private UserService userService;
     private AuditLogService auditLogService;
+    private ProjectService projectService;
     private Principal principal;
 
     @BeforeEach
@@ -33,10 +39,11 @@ public class IssueServiceTest {
         issueRepository = Mockito.mock(IssueRepository.class);
         userService = Mockito.mock(UserService.class);
         auditLogService = Mockito.mock(AuditLogService.class);
+        projectService = Mockito.mock(ProjectService.class);
         NotificationService notificationService = Mockito.mock(NotificationService.class);
         principal = Mockito.mock(Principal.class);
         Mockito.when(principal.getName()).thenReturn("admin");
-        issueService = new IssueService(issueRepository, notificationService, userService, auditLogService);
+        issueService = new IssueService(issueRepository, notificationService, userService, auditLogService, projectService);
     }
 
     @Test
@@ -44,11 +51,27 @@ public class IssueServiceTest {
         User reporter = new User();
         reporter.setUsername("admin");
 
+        Project project = new Project();
+        project.setId(1L);
+
+        CreateIssueRequest request = new CreateIssueRequest();
+        request.setTitle("Test issue");
+        request.setDescription("Test description");
+        request.setStatus(Status.TO_DO);
+        request.setPriority(Priority.LOW);
+        request.setProjectId(1L);
+        request.setReporterId(1L);
+
         Issue issue = new Issue();
         issue.setReporter(reporter);
+        issue.setProject(project);
+        issue.setTitle("Test issue");
 
-        Mockito.when(issueRepository.save(issue)).thenReturn(issue);
-        Issue issueSaved = issueService.addIssue(issue, principal);
+        Mockito.when(userService.getUserById(1L)).thenReturn(reporter);
+        Mockito.when(projectService.getProjectById(1L)).thenReturn(project);
+        Mockito.when(issueRepository.save(Mockito.any(Issue.class))).thenReturn(issue);
+
+        Issue issueSaved = issueService.addIssue(request, principal);
 
         assertEquals(issue, issueSaved);
     }
@@ -115,14 +138,16 @@ public class IssueServiceTest {
         issue.setProject(new Project());
         issue.setReporter(reporter);
 
-        Issue updatedIssue = new Issue();
-        updatedIssue.setTitle("Updated Test issue");
-        updatedIssue.setDescription("updated Test issue");
+        UpdateIssueRequest request = new UpdateIssueRequest();
+        request.setTitle("Updated Test issue");
+        request.setDescription("Updated Test issue");
+        request.setStatus(Status.TO_DO);
+        request.setPriority(Priority.LOW);
 
         Mockito.when(issueRepository.findById(issue.getId())).thenReturn(Optional.of(issue));
         Mockito.when(issueRepository.save(issue)).thenReturn(issue);
 
-        Issue result = issueService.updateIssue(issue.getId(), updatedIssue);
+        Issue result = issueService.updateIssue(issue.getId(), request, principal);
 
         assertEquals(issue, result);
         Mockito.verify(issueRepository, Mockito.times(1)).save(issue);
