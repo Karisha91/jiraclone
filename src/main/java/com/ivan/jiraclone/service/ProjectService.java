@@ -1,4 +1,5 @@
 package com.ivan.jiraclone.service;
+import com.ivan.jiraclone.dto.CreateProjectRequest;
 import com.ivan.jiraclone.enums.AuditAction;
 
 
@@ -36,18 +37,22 @@ public class ProjectService {
         return dtos;
     }
 
-    public ProjectDTO createProject(Project project, Principal principal) {
+    public ProjectDTO createProject(CreateProjectRequest request, Principal principal) {
+        Project project = new Project();
+        project.setName(request.getProjectName());
+        project.setDescription(request.getDescription());
         Project saved = projectRepository.save(project);
         auditLogService.logAction(principal.getName(), AuditAction.PROJECT_CREATED, "Project", saved.getId(), saved.getName());
         return convertToDTO(saved);
     }
 
-    public Project updateProject(Long id, Project project,Principal principal) {
+    public ProjectDTO updateProject(Long id, CreateProjectRequest request, Principal principal) {
         Project existingProject = getProjectById(id);
-        existingProject.setName(project.getName());
-        existingProject.setDescription(project.getDescription());
+        existingProject.setName(request.getProjectName());
+        existingProject.setDescription(request.getDescription());
+        Project updated = projectRepository.save(existingProject);
         auditLogService.logAction(principal.getName(), AuditAction.PROJECT_UPDATED, "Project", existingProject.getId(), existingProject.getName());
-        return projectRepository.save(existingProject);
+        return convertToDTO(updated);
     }
 
     public void deleteProject(Long id, Principal principal) {
