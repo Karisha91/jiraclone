@@ -2,10 +2,13 @@ package com.ivan.jiraclone.controller;
 
 
 import com.ivan.jiraclone.dto.AssignRequest;
+import com.ivan.jiraclone.dto.CreateIssueRequest;
 import com.ivan.jiraclone.dto.IssueDTO;
+import com.ivan.jiraclone.dto.UpdateIssueRequest;
 import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.service.IssueService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -40,16 +43,16 @@ public class IssueController {
         issueService.deleteIssueById(id, principal);
     }
 
-    @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @PostMapping
-    public Issue createIssue(@RequestBody Issue issue, Principal principal) {
+    public Issue createIssue(@Valid @RequestBody CreateIssueRequest request, Principal principal) {
 
-        return issueService.addIssue(issue, principal);
+        return issueService.addIssue(request, principal);
     }
-    @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @PutMapping("/{id}")
-    public Issue updateIssue(@PathVariable Long id,@RequestBody Issue issue) {
-       return issueService.updateIssue(id, issue);
+    public Issue updateIssue(@PathVariable Long id, @Valid @RequestBody UpdateIssueRequest request, Principal principal) {
+       return issueService.updateIssue(id, request, principal);
     }
 
 

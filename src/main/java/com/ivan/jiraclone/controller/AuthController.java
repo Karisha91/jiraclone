@@ -3,12 +3,14 @@ package com.ivan.jiraclone.controller;
 
 import com.ivan.jiraclone.dto.AuthRequest;
 import com.ivan.jiraclone.dto.AuthResponse;
+import com.ivan.jiraclone.dto.RegisterRequest;
 import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.security.JwtUtil;
 import com.ivan.jiraclone.service.RateLimitService;
 import com.ivan.jiraclone.service.UserService;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -42,7 +44,12 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user, HttpServletRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest regRequest, HttpServletRequest request) {
+        User user = new User();
+        user.setUsername(regRequest.getUsername());
+        user.setPassword(passwordEncoder.encode(regRequest.getPassword()));
+        user.setEmail(regRequest.getEmail());
+        user.setRole(regRequest.getRole());
         String clientIP = request.getHeader("X-Forwarded-For");
 
         if (clientIP == null || clientIP.isEmpty()) {
@@ -50,7 +57,6 @@ public class AuthController {
         }
         Bucket bucket = rateLimitService.resolveBucket(clientIP);
         if (bucket.tryConsume(1)) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
             return ResponseEntity.ok(userService.createUser(user));
         }  else {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
