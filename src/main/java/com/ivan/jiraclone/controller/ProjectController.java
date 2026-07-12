@@ -2,9 +2,11 @@
 package com.ivan.jiraclone.controller;
 
 
+import com.ivan.jiraclone.dto.CreateProjectRequest;
 import com.ivan.jiraclone.dto.ProjectDTO;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.service.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,14 +41,14 @@ public class ProjectController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ProjectDTO createProject(@RequestBody Project project, Principal principal) {
-        return projectService.createProject(project, principal);
+    public ProjectDTO createProject(@Valid @RequestBody CreateProjectRequest request, Principal principal) {
+        return projectService.createProject(request, principal);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public Project updateProject(@PathVariable Long id, @RequestBody Project project, Principal principal) {
-        return projectService.updateProject(id, project, principal);
+    public ProjectDTO updateProject(@PathVariable Long id, @Valid @RequestBody CreateProjectRequest request, Principal principal) {
+        return projectService.updateProject(id, request, principal);
     }
 
 

@@ -2,7 +2,9 @@ package com.ivan.jiraclone.service;
 
 
 import com.ivan.jiraclone.Repository.IssueRepository;
+import com.ivan.jiraclone.dto.CreateIssueRequest;
 import com.ivan.jiraclone.dto.IssueDTO;
+import com.ivan.jiraclone.dto.UpdateIssueRequest;
 import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.model.Issue;
@@ -23,16 +25,26 @@ public class IssueService {
     private final NotificationService notificationService;
     private final UserService userService;
     private final AuditLogService auditLogService;
+    private final ProjectService projectService;
 
 
-    public IssueService(IssueRepository issueRepository, NotificationService notificationService, UserService userService,AuditLogService auditLogService) {
+    public IssueService(IssueRepository issueRepository, NotificationService notificationService, UserService userService,AuditLogService auditLogService, ProjectService projectService) {
         this.issueRepository = issueRepository;
         this.notificationService = notificationService;
         this.userService = userService;
         this.auditLogService = auditLogService;
+        this.projectService = projectService;
     }
 
-    public Issue addIssue(Issue issue, Principal principal) {
+    public Issue addIssue(CreateIssueRequest request, Principal principal) {
+        Issue issue = new Issue();
+        issue.setTitle(request.getTitle());
+        issue.setDescription(request.getDescription());
+        issue.setStatus(request.getStatus());
+        issue.setPriority(request.getPriority());
+        User reporter = userService.getUserById(request.getReporterId());
+        issue.setReporter(reporter);
+        issue.setProject(projectService.getProjectById(request.getProjectId()));
         Issue saved = issueRepository.save(issue);
         auditLogService.logAction(principal.getName(), AuditAction.ISSUE_CREATED, "Issue", saved.getId(), saved.getTitle());
         return saved;
@@ -62,28 +74,16 @@ public class IssueService {
         issueRepository.delete(issue);
     }
 
-    public Issue updateIssue(Long id, Issue issue) {
+    public Issue updateIssue(Long id, UpdateIssueRequest request, Principal principal) {
         Issue existing = getIssueById(id);
-        existing.setTitle(issue.getTitle());
-        existing.setDescription(issue.getDescription());
-        existing.setPriority(issue.getPriority());
-        existing.setStatus(issue.getStatus());
+        existing.setTitle(request.getTitle());
+        existing.setDescription(request.getDescription());
+        existing.setPriority(request.getPriority());
+        existing.setStatus(request.getStatus());
 
 
-        if (issue.getAssignee() != null) {
-            boolean assigneeChanged = existing.getAssignee() == null ||
-                    !existing.getAssignee().getId().equals(issue.getAssignee().getId());
 
-
-            if (assigneeChanged) {
-                existing.setAssignee(issue.getAssignee());
-                notificationService.sendNotification(
-                        issue.getAssignee().getId(),
-                        "You have been assigned to: " + issue.getTitle(), id
-                );
-            }
-        }
-        auditLogService.logAction(existing.getReporter().getUsername(), AuditAction.ISSUE_UPDATED, "Issue", existing.getId(), existing.getTitle());
+        auditLogService.logAction(principal.getName(), AuditAction.ISSUE_UPDATED, "Issue", existing.getId(), existing.getTitle());
 
         return issueRepository.save(existing);
     }
@@ -152,13 +152,13 @@ public class IssueService {
         Issue issue = getIssueById(id);
         User user = userService.getUserById(assigneeId);
         issue.setAssignee(user);
-        issueRepository.save(issue);
+        Issue saved = issueRepository.save(issue);
         notificationService.sendNotification(
                 assigneeId,
                 "You have been assigned to: " + issue.getTitle(), id
         );
         auditLogService.logAction(principal.getName(), AuditAction.ISSUE_ASSIGNED, "Issue", issue.getId(), issue.getTitle());
-        return convertToDTO(issue);
+        return convertToDTO(saved);
 
     }
 
