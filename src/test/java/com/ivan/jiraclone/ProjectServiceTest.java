@@ -1,6 +1,7 @@
 package com.ivan.jiraclone;
 
 import com.ivan.jiraclone.Repository.ProjectRepository;
+import com.ivan.jiraclone.dto.CreateProjectRequest;
 import com.ivan.jiraclone.dto.ProjectDTO;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.service.AuditLogService;
@@ -74,10 +75,15 @@ public class ProjectServiceTest {
         Project project = new Project();
         project.setName("E-commerce App");
         project.setDescription("Online store");
-        Mockito.when(projectRepository.save(project)).thenReturn(project);
-        ProjectDTO projectDTO = projectService.createProject(project, principal);
+
+        CreateProjectRequest request = new CreateProjectRequest();
+        request.setProjectName("E-commerce App");
+        request.setDescription("Online store");
+
+        Mockito.when(projectRepository.save(Mockito.any(Project.class))).thenReturn(project);
+        ProjectDTO projectDTO = projectService.createProject(request, principal);
         assertEquals(project.getName(), projectDTO.getProjectName());
-        Mockito.verify(projectRepository, Mockito.times(1)).save(project);
+        Mockito.verify(projectRepository, Mockito.times(1)).save(Mockito.any(Project.class));
     }
 
     @Test
@@ -87,20 +93,17 @@ public class ProjectServiceTest {
         existingProject.setName("E-commerce App");
         existingProject.setDescription("Online store");
 
-        Project updatedProject = new Project();
-        updatedProject.setName("Updated name");
-        updatedProject.setDescription("Updated description");
+        CreateProjectRequest request = new CreateProjectRequest();
+        request.setProjectName("Updated name");
+        request.setDescription("Updated description");
 
         Mockito.when(projectRepository.findById(1L)).thenReturn(Optional.of(existingProject));
         Mockito.when(projectRepository.save(existingProject)).thenReturn(existingProject);
 
-        Project result = projectService.updateProject(1L, updatedProject, principal);
+        ProjectDTO result = projectService.updateProject(1L, request, principal);
 
         assertEquals("Updated description", existingProject.getDescription());
         assertEquals("Updated name", existingProject.getName());
-        assertEquals(updatedProject.getDescription(), result.getDescription());
-        assertEquals(existingProject.getId(), result.getId());
-
         Mockito.verify(projectRepository, Mockito.times(1)).save(existingProject);
     }
 
@@ -110,8 +113,7 @@ public class ProjectServiceTest {
         Project existingProject = new Project();
         existingProject.setId(projectId);
 
-        Mockito.when(projectRepository.findById(projectId))
-                .thenReturn(Optional.of(existingProject));
+        Mockito.when(projectRepository.findById(projectId)).thenReturn(Optional.of(existingProject));
 
         projectService.deleteProject(projectId, principal);
         Mockito.verify(projectRepository, Mockito.times(1)).deleteById(projectId);
