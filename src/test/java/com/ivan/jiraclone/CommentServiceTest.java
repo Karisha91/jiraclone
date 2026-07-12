@@ -1,11 +1,13 @@
 package com.ivan.jiraclone;
 
 import com.ivan.jiraclone.Repository.CommentRepository;
+import com.ivan.jiraclone.dto.AddCommentRequest;
 import com.ivan.jiraclone.dto.CommentDTO;
 import com.ivan.jiraclone.model.Comment;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.service.CommentService;
+import com.ivan.jiraclone.service.IssueService;
 import com.ivan.jiraclone.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,14 +23,16 @@ public class CommentServiceTest {
     private CommentService commentService;
     private UserService userService;
     private CommentRepository commentRepository;
+    private IssueService issueService;
     private Principal principal;
 
     @BeforeEach
     public void setUp(){
         commentRepository = Mockito.mock(CommentRepository.class);
         userService = Mockito.mock(UserService.class);
+        issueService = Mockito.mock(IssueService.class);
         principal = Mockito.mock(Principal.class);
-        commentService = new CommentService(commentRepository, userService);
+        commentService = new CommentService(commentRepository, userService, issueService);
     }
 
     @Test
@@ -88,17 +92,25 @@ public class CommentServiceTest {
         user.setId(1L);
         user.setUsername("ivan");
 
-        Mockito.when(userService.findByUsername("ivan")).thenReturn(user);
+        Issue issue = new Issue();
+        issue.setId(1L);
+
+        AddCommentRequest request = new AddCommentRequest();
+        request.setContent("Test comment");
+        request.setIssueId(1L);
 
         Comment comment = new Comment();
         comment.setId(1L);
         comment.setContent("Test comment");
-        comment.setIssue(new Issue());
+        comment.setIssue(issue);
         comment.setAuthor(user);
         comment.setCreatedAt(java.time.LocalDateTime.now());
 
+        Mockito.when(userService.findByUsername("ivan")).thenReturn(user);
+        Mockito.when(issueService.getIssueById(1L)).thenReturn(issue);
         Mockito.when(commentRepository.save(Mockito.any(Comment.class))).thenReturn(comment);
-        commentService.addComment(comment, principal);
+
+        commentService.addComment(request, principal);
 
         Mockito.verify(commentRepository, Mockito.times(1)).save(Mockito.any(Comment.class));
     }
