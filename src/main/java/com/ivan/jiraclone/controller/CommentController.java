@@ -1,11 +1,13 @@
 package com.ivan.jiraclone.controller;
 
 
+import com.ivan.jiraclone.dto.AddCommentRequest;
 import com.ivan.jiraclone.dto.CommentDTO;
 import com.ivan.jiraclone.model.Comment;
 import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.service.CommentService;
 import com.ivan.jiraclone.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -48,8 +50,8 @@ public class CommentController {
 
     @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @PostMapping
-    public CommentDTO addComment(@RequestBody Comment comment, Principal principal) {
-        return commentService.convertCommentToDTO(commentService.addComment(comment, principal));
+    public CommentDTO addComment(@Valid @RequestBody AddCommentRequest request, Principal principal) {
+        return commentService.addComment(request, principal);
     }
 
 

@@ -2,10 +2,12 @@ package com.ivan.jiraclone.service;
 
 
 import com.ivan.jiraclone.Repository.CommentRepository;
+import com.ivan.jiraclone.dto.AddCommentRequest;
 import com.ivan.jiraclone.dto.CommentDTO;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.exception.UnauthorizedException;
 import com.ivan.jiraclone.model.Comment;
+import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.model.User;
 import org.springframework.data.domain.Page;
@@ -23,10 +25,12 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final UserService userService;
+    private final IssueService issueService;
 
-    public CommentService(CommentRepository commentRepository, UserService userService) {
+    public CommentService(CommentRepository commentRepository, UserService userService, IssueService issueService) {
         this.commentRepository = commentRepository;
         this.userService = userService;
+        this.issueService = issueService;
     }
 
     public List<CommentDTO> getCommentsByIssueId(Long issueId){
@@ -77,12 +81,16 @@ public class CommentService {
     }
 
 
-    public Comment addComment(Comment comment ,Principal principal) {
+    public CommentDTO addComment(AddCommentRequest request, Principal principal) {
+        Issue issue = issueService.getIssueById(request.getIssueId());
+        Comment comment = new Comment();
         String username = principal.getName();
         User user = userService.findByUsername(username);
         comment.setAuthor(user);
         comment.setCreatedAt(java.time.LocalDateTime.now());
-        return commentRepository.save(comment);
+        comment.setIssue(issue);
+        comment.setContent(request.getContent());
+        return convertCommentToDTO(commentRepository.save(comment));
 
     }
 
