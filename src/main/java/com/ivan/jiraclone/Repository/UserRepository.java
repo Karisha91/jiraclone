@@ -12,6 +12,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // 5# method that checks credentials of user in database
     Optional<User> findByUsername(String username);
+    Optional<User> findByEmail(String email);
 
 
 
