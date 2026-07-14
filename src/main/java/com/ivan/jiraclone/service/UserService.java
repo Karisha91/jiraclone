@@ -79,4 +79,12 @@ public class UserService {
         return user.getAvatarUrl();
 
     }
+
+    public User findByEmail(String email) {
+       return userRepository.findByEmail(email).orElseThrow(() ->  new ResourceNotFoundException("User not found with email: " + email));
+    }
+
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
 }
