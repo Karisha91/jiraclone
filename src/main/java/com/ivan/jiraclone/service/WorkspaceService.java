@@ -1,0 +1,150 @@
+package com.ivan.jiraclone.service;
+
+
+import com.ivan.jiraclone.Repository.WorkspaceRepository;
+import com.ivan.jiraclone.dto.*;
+import com.ivan.jiraclone.exception.ResourceNotFoundException;
+import com.ivan.jiraclone.exception.UnauthorizedException;
+import com.ivan.jiraclone.model.User;
+import com.ivan.jiraclone.model.Workspace;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Service
+public class WorkspaceService {
+
+    private WorkspaceRepository workspaceRepository;
+    private UserService userService;
+
+    public WorkspaceService(WorkspaceRepository workspaceRepository, UserService userService) {
+        this.workspaceRepository = workspaceRepository;
+        this.userService = userService;
+    }
+
+
+        public WorkspaceResponse createWorkspace(WorkspaceRequest  workspaceRequest, Principal principal) {
+        Workspace workspace = new Workspace();
+        User user = userService.findByUsername(principal.getName());
+        workspace.setName(workspaceRequest.getName());
+        workspace.setDescription(workspaceRequest.getDescription());
+        workspace.setCreatedAt(LocalDateTime.now());
+        workspace.setOwner(user);
+        return convertWorkspace(workspaceRepository.save(workspace));
+    }
+
+
+    public WorkspaceResponse convertWorkspace(Workspace  workspace) {
+        User owner = workspace.getOwner();
+        WorkspaceResponse workspaceResponse = new WorkspaceResponse();
+        workspaceResponse.setName(workspace.getName());
+        workspaceResponse.setDescription(workspace.getDescription());
+        workspaceResponse.setCreatedAt(workspace.getCreatedAt());
+        workspaceResponse.setId(workspace.getId());
+        OwnerSummary ownerSummary = new OwnerSummary();
+        ownerSummary.setUsername(owner.getUsername());
+        ownerSummary.setId(owner.getId());
+        workspaceResponse.setOwner(ownerSummary);
+        workspaceResponse.setMembers(workspace.getMembers().stream().map(member -> {
+            MemberSummary memberSummary = new MemberSummary();
+            memberSummary.setUsername(member.getUsername());
+            memberSummary.setId(member.getId());
+            memberSummary.setAvatarUrl(member.getAvatarUrl());
+            return memberSummary;
+        }).collect(Collectors.toList()));
+        workspaceResponse.setProjects(workspace.getProjects().stream().map(project -> {
+            ProjectSummary projectSummary = new ProjectSummary();
+            projectSummary.setId(project.getId());
+            projectSummary.setName(project.getName());
+            return projectSummary;
+        }).collect(Collectors.toList()));
+
+        return workspaceResponse;
+
+
+
+    }
+
+    public List<WorkspaceResponse> getWorkspaces(Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        Set<Workspace> workspaces = workspaceRepository.findByOwnerOrMembers(user, user);
+        return workspaces.stream().map(this::convertWorkspace).collect(Collectors.toList());
+    }
+
+    public WorkspaceResponse getWorkspace(Long id) {
+        return workspaceRepository.findById(id)
+                .map(this::convertWorkspace)
+                .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+    }
+    public WorkspaceResponse updateWorkspace(Long id, WorkspaceRequest  workspaceRequest, Principal principal) {
+
+        Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+        if  (!Objects.equals(principal.getName(), workspace.getOwner().getUsername())) {
+
+            throw new UnauthorizedException("You are not owner of this workspace");
+        }
+        workspace.setName(workspaceRequest.getName());
+        workspace.setDescription(workspaceRequest.getDescription());
+        return convertWorkspace(workspaceRepository.save(workspace));
+
+
+    }
+
+    public void deleteWorkspace(Long id, Principal principal) {
+        Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+        if  (!Objects.equals(principal.getName(), workspace.getOwner().getUsername())) {
+            throw new UnauthorizedException("You are not owner of this workspace");
+
+        }
+        workspaceRepository.delete(workspace);
+
+    }
+
+    public MemberSummary addMemberToWorkspace(Long id, UserDTO userDTO, Principal principal) {
+        Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+        if (!Objects.equals(principal.getName(), workspace.getOwner().getUsername())) {
+            throw new UnauthorizedException("You are not owner of this workspace");
+        }
+        User user = userService.findByUsername(userDTO.getUsername());
+        MemberSummary memberSummary = new MemberSummary();
+        memberSummary.setUsername(user.getUsername());
+        memberSummary.setId(user.getId());
+        memberSummary.setAvatarUrl(user.getAvatarUrl());
+
+        workspace.getMembers().add(user);
+        workspaceRepository.save(workspace);
+        return memberSummary;
+    }
+    public MemberSummary removeMemberFromWorkspace(Long id,UserDTO userDTO, Principal principal) {
+        Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+        if (!Objects.equals(principal.getName(), workspace.getOwner().getUsername())) {
+            throw new UnauthorizedException("You are not owner of this workspace");
+        }
+        User user = userService.findByUsername(userDTO.getUsername());
+        MemberSummary memberSummary = new MemberSummary();
+        memberSummary.setUsername(user.getUsername());
+        memberSummary.setId(user.getId());
+        memberSummary.setAvatarUrl(user.getAvatarUrl());
+        if (!workspace.getMembers().contains(user)) {
+           throw new ResourceNotFoundException("There is no such user in this workspace");
+        }
+        workspace.getMembers().remove(user);
+        workspaceRepository.save(workspace);
+        return memberSummary;
+
+
+
+
+    }
+    public Workspace getRealWorkspace(Long id) {
+      return workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+    }
+}

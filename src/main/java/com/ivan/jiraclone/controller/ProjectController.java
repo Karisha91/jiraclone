@@ -23,15 +23,12 @@ public class ProjectController {
         this.projectService = projectService;
 
     }
-    @GetMapping("/{id}")
-    public ProjectDTO getProjectDTOById(@PathVariable long id) {
-        return projectService.convertToDTO(projectService.getProjectById(id));
+    @GetMapping("/{projectId}")
+    public ProjectDTO getProjectDTOById(@PathVariable long projectId) {
+        return projectService.convertToDTO(projectService.getProjectById(projectId));
     }
 
-    @GetMapping
-    public List<ProjectDTO> getAllProjects() {
-        return projectService.getAllProjects();
-    }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")

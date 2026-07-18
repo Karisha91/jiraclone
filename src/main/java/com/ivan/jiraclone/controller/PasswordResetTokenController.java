@@ -28,7 +28,6 @@ public class PasswordResetTokenController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest resetPasswordRequest) {
-        System.out.println("Token received: " + resetPasswordRequest.getToken());
         passwordResetService.resetPassword(resetPasswordRequest.getNewPassword(),  resetPasswordRequest.getToken());
         return ResponseEntity.ok("Password has been successfully reset");
     }
