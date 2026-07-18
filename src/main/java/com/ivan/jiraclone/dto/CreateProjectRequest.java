@@ -14,4 +14,5 @@ public class CreateProjectRequest {
     private String projectName;
     @Size(max = 500, message = "Description cannot exceed 500 characters")
     private String description;
+    private Long workspaceId;
 }

@@ -14,7 +14,7 @@ public class ProjectDTO {
 
     private String description;
 
-    private String owner;
+    private Long workspaceId;
 
 
 }

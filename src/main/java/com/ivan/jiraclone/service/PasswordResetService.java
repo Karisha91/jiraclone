@@ -32,7 +32,7 @@ public class PasswordResetService {
 
     public void forgotPassword(String email) {
         User user = userService.findByEmail(email);
-        System.out.println(user.getEmail());
+
         if (user == null) {
             return;
         }
@@ -61,9 +61,9 @@ public class PasswordResetService {
     }
 
     public void resetPassword(String newPassword, String token) {
+
         PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid token"));
-        System.out.println("Token: " + passwordResetToken.getToken());
         User user = passwordResetToken.getUser();
         if (passwordResetToken.isUsed() || passwordResetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("Token is used or is expired");
