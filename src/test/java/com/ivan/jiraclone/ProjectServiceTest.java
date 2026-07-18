@@ -137,10 +137,13 @@ public class ProjectServiceTest {
 
     @Test
     void convertProjectToDTO() {
+        Workspace workspace = new Workspace();
+        workspace.setId(1L);
         Project project = new Project();
         project.setId(1L);
         project.setName("E-commerce App");
         project.setDescription("Online store");
+        project.setWorkspace(workspace);
 
         ProjectDTO projectDTO = projectService.convertToDTO(project);
         assertEquals(project.getName(), projectDTO.getProjectName());
