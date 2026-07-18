@@ -6,6 +6,7 @@ import com.ivan.jiraclone.dto.ProjectDTO;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.service.AuditLogService;
 import com.ivan.jiraclone.service.ProjectService;
+import com.ivan.jiraclone.service.WorkspaceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -22,19 +23,21 @@ public class ProjectServiceTest {
     private ProjectRepository projectRepository;
     private ProjectService projectService;
     private AuditLogService auditLogService;
+    private WorkspaceService workspaceService;
     private Principal principal;
 
     @BeforeEach
     void setUp() {
         projectRepository = Mockito.mock(ProjectRepository.class);
         auditLogService = Mockito.mock(AuditLogService.class);
+        workspaceService = Mockito.mock(WorkspaceService.class);
         principal = Mockito.mock(Principal.class);
         Mockito.when(principal.getName()).thenReturn("admin");
-        projectService = new ProjectService(projectRepository, auditLogService);
+        projectService = new ProjectService(projectRepository, auditLogService, workspaceService);
     }
 
     @Test
-    void getAllProjects() {
+    void getAllProjectsByWorkspaceId() {
         Project project1 = new Project();
         project1.setId(1L);
         project1.setName("E-commerce App");
@@ -49,8 +52,8 @@ public class ProjectServiceTest {
         projects.add(project1);
         projects.add(project2);
 
-        Mockito.when(projectRepository.findAll()).thenReturn(projects);
-        List<ProjectDTO> dtos = projectService.getAllProjects();
+        Mockito.when(projectRepository.findByWorkspaceId(1L)).thenReturn(projects);
+        List<ProjectDTO> dtos = projectService.getAllProjectsByWorkspaceId(1L);
 
         assertEquals(2, dtos.size());
         assertEquals("E-commerce App", dtos.get(0).getProjectName());
@@ -79,6 +82,7 @@ public class ProjectServiceTest {
         CreateProjectRequest request = new CreateProjectRequest();
         request.setProjectName("E-commerce App");
         request.setDescription("Online store");
+        request.setWorkspaceId(1L);
 
         Mockito.when(projectRepository.save(Mockito.any(Project.class))).thenReturn(project);
         ProjectDTO projectDTO = projectService.createProject(request, principal);
