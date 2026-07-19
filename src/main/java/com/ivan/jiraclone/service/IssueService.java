@@ -17,6 +17,7 @@ import com.ivan.jiraclone.enums.AuditAction;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class IssueService {
@@ -171,5 +172,10 @@ public class IssueService {
         }
 
         return dtos;
+    }
+
+    public List<IssueDTO> getAllIssuesByWorkspaceId(long workspaceId) {
+        List<Issue> issues = issueRepository.findByWorkspaceId(workspaceId);
+        return issues.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 }
