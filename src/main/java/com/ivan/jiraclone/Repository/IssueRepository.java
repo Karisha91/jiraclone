@@ -28,4 +28,7 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
 
 
     List<Issue> findByAssigneeUsername(String username);
+
+    @Query("SELECT i FROM Issue i JOIN i.project p WHERE p.workspace.id = :workspaceId")
+    List<Issue> findByWorkspaceId(long workspaceId);
 }

@@ -3,8 +3,10 @@ package com.ivan.jiraclone.controller;
 
 import com.ivan.jiraclone.dto.*;
 import com.ivan.jiraclone.model.Workspace;
+import com.ivan.jiraclone.service.IssueService;
 import com.ivan.jiraclone.service.ProjectService;
 import com.ivan.jiraclone.service.WorkspaceService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +20,20 @@ public class WorkspaceController {
 
     private final WorkspaceService workspaceService;
     private final ProjectService projectService;
+    private final IssueService issueService;
 
 
-    public WorkspaceController(WorkspaceService workspaceService ,ProjectService projectService ) {
+    public WorkspaceController(WorkspaceService workspaceService ,ProjectService projectService,IssueService issueService ) {
         this.workspaceService = workspaceService;
         this.projectService = projectService;
+        this.issueService = issueService;
     }
 
 
     @GetMapping
+    @Transactional
     public List<WorkspaceResponse> getWorkspaces(Principal principal) {
+        System.out.println(principal.getName());
         return workspaceService.getWorkspaces(principal);
 
     }
@@ -71,6 +77,14 @@ public class WorkspaceController {
     @GetMapping("/{workspaceId}/projects")
     public List<ProjectDTO> getAllProjects(@PathVariable long workspaceId) {
         return projectService.getAllProjectsByWorkspaceId(workspaceId);
+    }
+
+
+    @GetMapping("/{workspaceId}/issues")
+    public List<IssueDTO> getAllIssuesByWorkspaceId(@PathVariable long workspaceId) {
+
+        return issueService.getAllIssuesByWorkspaceId(workspaceId);
+
     }
 
 
