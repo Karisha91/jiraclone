@@ -31,7 +31,7 @@ public class WorkspaceController {
 
 
     @GetMapping
-    @Transactional
+
     public List<WorkspaceResponse> getWorkspaces(Principal principal) {
         System.out.println(principal.getName());
         return workspaceService.getWorkspaces(principal);
@@ -86,6 +86,8 @@ public class WorkspaceController {
         return issueService.getAllIssuesByWorkspaceId(workspaceId);
 
     }
+
+
 
 
 

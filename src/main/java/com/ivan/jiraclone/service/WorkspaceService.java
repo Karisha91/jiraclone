@@ -7,6 +7,7 @@ import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.exception.UnauthorizedException;
 import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.model.Workspace;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -72,18 +73,20 @@ public class WorkspaceService {
 
 
     }
-
+    @Transactional
     public List<WorkspaceResponse> getWorkspaces(Principal principal) {
         User user = userService.findByUsername(principal.getName());
         Set<Workspace> workspaces = workspaceRepository.findByOwnerOrMembers(user, user);
         return workspaces.stream().map(this::convertWorkspace).collect(Collectors.toList());
     }
-
+    @Transactional
     public WorkspaceResponse getWorkspace(Long id) {
         return workspaceRepository.findById(id)
                 .map(this::convertWorkspace)
                 .orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
     }
+
+    @Transactional
     public WorkspaceResponse updateWorkspace(Long id, WorkspaceRequest  workspaceRequest, Principal principal) {
 
         Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
@@ -97,7 +100,7 @@ public class WorkspaceService {
 
 
     }
-
+    @Transactional
     public void deleteWorkspace(Long id, Principal principal) {
         Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
         if  (!Objects.equals(principal.getName(), workspace.getOwner().getUsername())) {
@@ -107,7 +110,7 @@ public class WorkspaceService {
         workspaceRepository.delete(workspace);
 
     }
-
+    @Transactional
     public MemberSummary addMemberToWorkspace(Long id, UserDTO userDTO, Principal principal) {
         Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
         if (!Objects.equals(principal.getName(), workspace.getOwner().getUsername())) {
@@ -123,6 +126,7 @@ public class WorkspaceService {
         workspaceRepository.save(workspace);
         return memberSummary;
     }
+    @Transactional
     public MemberSummary removeMemberFromWorkspace(Long id,UserDTO userDTO, Principal principal) {
         Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
         if (!Objects.equals(principal.getName(), workspace.getOwner().getUsername())) {
@@ -144,7 +148,10 @@ public class WorkspaceService {
 
 
     }
+    @Transactional
     public Workspace getRealWorkspace(Long id) {
       return workspaceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
     }
+
+
 }
