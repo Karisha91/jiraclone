@@ -3,6 +3,7 @@ package com.ivan.jiraclone.service;
 
 import com.ivan.jiraclone.Repository.WorkspaceRepository;
 import com.ivan.jiraclone.dto.*;
+import com.ivan.jiraclone.exception.ResourceAlreadyExistsException;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.exception.UnauthorizedException;
 import com.ivan.jiraclone.model.User;
@@ -25,10 +26,12 @@ public class WorkspaceService {
 
     private WorkspaceRepository workspaceRepository;
     private UserService userService;
+    private final NotificationService notificationService;
 
-    public WorkspaceService(WorkspaceRepository workspaceRepository, UserService userService) {
+    public WorkspaceService(WorkspaceRepository workspaceRepository, UserService userService, NotificationService notificationService) {
         this.workspaceRepository = workspaceRepository;
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
 
@@ -116,7 +119,11 @@ public class WorkspaceService {
         if (!Objects.equals(principal.getName(), workspace.getOwner().getUsername())) {
             throw new UnauthorizedException("You are not owner of this workspace");
         }
+
         User user = userService.findByUsername(userDTO.getUsername());
+        if (workspace.getMembers().contains(user)) {
+            throw new ResourceAlreadyExistsException("User is already a member of this workspace");
+        }
         MemberSummary memberSummary = new MemberSummary();
         memberSummary.setUsername(user.getUsername());
         memberSummary.setId(user.getId());
@@ -124,6 +131,7 @@ public class WorkspaceService {
 
         workspace.getMembers().add(user);
         workspaceRepository.save(workspace);
+        notificationService.sendNotification(user.getId(),workspace.getOwner().getUsername() + "added you to: " + workspace.getName(), null, workspace.getId());
         return memberSummary;
     }
     @Transactional

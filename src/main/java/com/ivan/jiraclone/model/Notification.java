@@ -20,8 +20,12 @@ public class Notification {
     private String message;
 
     @ManyToOne
-    @JoinColumn(name = "issue_id")
+    @JoinColumn(name = "issue_id", nullable = true)
     private Issue issue;
+
+    @ManyToOne
+    @JoinColumn(name = "workspace_id", nullable = true)
+    private Workspace workspace;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

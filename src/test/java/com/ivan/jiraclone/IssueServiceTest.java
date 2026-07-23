@@ -71,9 +71,8 @@ public class IssueServiceTest {
         Mockito.when(projectService.getProjectById(1L)).thenReturn(project);
         Mockito.when(issueRepository.save(Mockito.any(Issue.class))).thenReturn(issue);
 
-        Issue issueSaved = issueService.addIssue(request, principal);
-
-        assertEquals(issue, issueSaved);
+        IssueDTO issueSaved = issueService.addIssue(request, principal);
+        assertEquals(issue.getTitle(), issueSaved.getTitle());
     }
 
     @Test
@@ -147,9 +146,8 @@ public class IssueServiceTest {
         Mockito.when(issueRepository.findById(issue.getId())).thenReturn(Optional.of(issue));
         Mockito.when(issueRepository.save(issue)).thenReturn(issue);
 
-        Issue result = issueService.updateIssue(issue.getId(), request, principal);
-
-        assertEquals(issue, result);
+        IssueDTO result = issueService.updateIssue(issue.getId(), request, principal);
+        assertEquals("Updated Test issue", result.getTitle());
         Mockito.verify(issueRepository, Mockito.times(1)).save(issue);
     }
 

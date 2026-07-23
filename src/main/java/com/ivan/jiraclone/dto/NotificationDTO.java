@@ -10,14 +10,16 @@ public class NotificationDTO {
     private Long id;
     private String message;
     private Long issueId;
+    private Long workspaceId;
+
     @JsonProperty("isRead")
     private boolean read;
 
-    public NotificationDTO(String message, Long issueId, Long id, boolean isRead) {
-        this.message = message;
-        this.issueId = issueId;
+    public NotificationDTO(Long id, String message, Long workspaceId, Long issueId, boolean read) {
         this.id = id;
-        this.read = isRead;
+        this.message = message;
+        this.workspaceId = workspaceId;
+        this.issueId = issueId;
+        this.read = read;
     }
-
 }
