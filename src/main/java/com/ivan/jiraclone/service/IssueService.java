@@ -84,7 +84,7 @@ public class IssueService {
         existing.setStatus(request.getStatus());
 
 
-
+        issueRepository.save(existing);
         auditLogService.logAction(principal.getName(), AuditAction.ISSUE_UPDATED, "Issue", existing.getId(), existing.getTitle());
 
         return convertToDTO(existing);
