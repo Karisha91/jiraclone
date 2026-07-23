@@ -45,13 +45,13 @@ public class IssueController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @PostMapping
-    public Issue createIssue(@Valid @RequestBody CreateIssueRequest request, Principal principal) {
+    public IssueDTO createIssue(@Valid @RequestBody CreateIssueRequest request, Principal principal) {
 
         return issueService.addIssue(request, principal);
     }
     @PreAuthorize("hasAnyRole('ADMIN', 'DEVELOPER')")
     @PutMapping("/{id}")
-    public Issue updateIssue(@PathVariable Long id, @Valid @RequestBody UpdateIssueRequest request, Principal principal) {
+    public IssueDTO updateIssue(@PathVariable Long id, @Valid @RequestBody UpdateIssueRequest request, Principal principal) {
        return issueService.updateIssue(id, request, principal);
     }
 
