@@ -6,6 +6,7 @@ import com.ivan.jiraclone.dto.UserDTO;
 import com.ivan.jiraclone.exception.DuplicateResourceException;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.model.User;
+import com.ivan.jiraclone.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -21,11 +22,13 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
+    private final JwtUtil jwtUtil;
 
 
-    public UserService(UserRepository userRepository, CloudinaryService cloudinaryService) {
+    public UserService(UserRepository userRepository, CloudinaryService cloudinaryService, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.cloudinaryService = cloudinaryService;
+        this.jwtUtil = jwtUtil;
     }
 
     public List<User> getAllUsers() {
@@ -69,9 +72,10 @@ public class UserService {
 
     public ResponseEntity<?> uploadAvatar(Long id, @RequestPart MultipartFile avatar) {
         User user = userRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("User not found with id: " + id));
-        user.setAvatarUrl(cloudinaryService.upload(avatar));
+        String url = cloudinaryService.upload(avatar);
+        user.setAvatarUrl(url);
         userRepository.save(user);
-        return ResponseEntity.ok("Avatar uploaded successfully");
+        return ResponseEntity.ok(url);
     }
 
     public String getAvatar(Long id) {
@@ -86,5 +90,14 @@ public class UserService {
 
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    public ResponseEntity<?> updateUsername(Long id, String username) {
+        User user =  userRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("User not found: " + id));
+        user.setUsername(username);
+        userRepository.save(user);
+        String token = jwtUtil.generateToken(user.getUsername(), user.getId(), user.getRole());
+        return ResponseEntity.ok(token);
+
     }
 }

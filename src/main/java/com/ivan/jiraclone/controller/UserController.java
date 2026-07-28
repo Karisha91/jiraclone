@@ -18,6 +18,8 @@ public class UserController {
 
     private final UserService userService;
 
+
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -52,5 +54,10 @@ public class UserController {
     @GetMapping("/{id}/avatar")
     public String getAvatar(@PathVariable Long id) {
         return userService.getAvatar(id);
+    }
+
+    @PutMapping("/{id}/username")
+    public ResponseEntity<?> updateUsername(@PathVariable Long id, @RequestBody String username){
+        return userService.updateUsername(id, username);
     }
 }
