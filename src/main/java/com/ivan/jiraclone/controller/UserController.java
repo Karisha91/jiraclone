@@ -44,7 +44,7 @@ public class UserController {
         userService.deleteUserById(id);
 
     }
-    @PutMapping("/{id}/upload")
+    @PostMapping("/{id}/upload")
     public ResponseEntity<?> uploadAvatar(@PathVariable Long id, @RequestPart MultipartFile avatar ) {
 
         return  userService.uploadAvatar(id, avatar);
