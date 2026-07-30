@@ -1,5 +1,6 @@
 package com.ivan.jiraclone;
 
+import com.ivan.jiraclone.Repository.IssueRepository;
 import com.ivan.jiraclone.Repository.ProjectRepository;
 import com.ivan.jiraclone.dto.CreateProjectRequest;
 import com.ivan.jiraclone.dto.ProjectDTO;
@@ -26,15 +27,17 @@ public class ProjectServiceTest {
     private AuditLogService auditLogService;
     private WorkspaceService workspaceService;
     private Principal principal;
+    private IssueRepository issueRepository;
 
     @BeforeEach
     void setUp() {
         projectRepository = Mockito.mock(ProjectRepository.class);
         auditLogService = Mockito.mock(AuditLogService.class);
         workspaceService = Mockito.mock(WorkspaceService.class);
+        issueRepository = Mockito.mock(IssueRepository.class);
         principal = Mockito.mock(Principal.class);
         Mockito.when(principal.getName()).thenReturn("admin");
-        projectService = new ProjectService(projectRepository, auditLogService, workspaceService);
+        projectService = new ProjectService(projectRepository, auditLogService, workspaceService, issueRepository);
     }
 
     @Test
