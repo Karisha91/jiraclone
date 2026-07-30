@@ -4,6 +4,8 @@ package com.ivan.jiraclone.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ProjectDTO {
 
@@ -15,6 +17,8 @@ public class ProjectDTO {
     private String description;
 
     private Long workspaceId;
+
+    private List<IssueDTO> issues;
 
 
 }

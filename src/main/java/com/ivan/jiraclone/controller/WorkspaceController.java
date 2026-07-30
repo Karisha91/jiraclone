@@ -34,7 +34,7 @@ public class WorkspaceController {
     @GetMapping
 
     public List<WorkspaceResponse> getWorkspaces(Principal principal) {
-        System.out.println(principal.getName());
+
         return workspaceService.getWorkspaces(principal);
 
     }

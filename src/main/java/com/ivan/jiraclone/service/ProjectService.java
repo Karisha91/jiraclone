@@ -1,5 +1,7 @@
 package com.ivan.jiraclone.service;
+import com.ivan.jiraclone.Repository.IssueRepository;
 import com.ivan.jiraclone.dto.CreateProjectRequest;
+import com.ivan.jiraclone.dto.IssueDTO;
 import com.ivan.jiraclone.dto.WorkspaceResponse;
 import com.ivan.jiraclone.enums.AuditAction;
 
@@ -7,6 +9,7 @@ import com.ivan.jiraclone.enums.AuditAction;
 import com.ivan.jiraclone.Repository.ProjectRepository;
 import com.ivan.jiraclone.dto.ProjectDTO;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
+import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.model.Workspace;
 import org.springframework.stereotype.Service;
@@ -22,11 +25,13 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final AuditLogService auditLogService;
     private final WorkspaceService workspaceService;
+    private final IssueRepository issueRepository;
 
-    public ProjectService(ProjectRepository projectRepository, AuditLogService auditLogService,WorkspaceService workspaceService) {
+    public ProjectService(ProjectRepository projectRepository, AuditLogService auditLogService,WorkspaceService workspaceService, IssueRepository issueRepository) {
         this.projectRepository = projectRepository;
         this.auditLogService = auditLogService;
         this.workspaceService = workspaceService;
+        this.issueRepository = issueRepository;
     }
 
     public Project getProjectById(Long id) {
@@ -71,6 +76,17 @@ public class ProjectService {
         projectDTO.setProjectName(project.getName());
         projectDTO.setDescription(project.getDescription());
         projectDTO.setWorkspaceId(project.getWorkspace().getId());
+        projectDTO.setIssues(issueRepository.findByProjectId(project.getId()).stream().map((this::convertIssueToDTO)).collect(Collectors.toList()));
         return projectDTO;
+    }
+
+
+    private IssueDTO convertIssueToDTO(Issue issue) {
+        IssueDTO dto = new IssueDTO();
+        dto.setId(issue.getId());
+        dto.setTitle(issue.getTitle());
+        dto.setStatus(issue.getStatus());
+        dto.setPriority(issue.getPriority());
+        return dto;
     }
 }
