@@ -1,11 +1,13 @@
 package com.ivan.jiraclone.controller;
 
 
+import com.ivan.jiraclone.dto.ChangePasswordRequest;
 import com.ivan.jiraclone.dto.UserDTO;
 import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.service.UserService;
 import lombok.Data;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,8 +22,10 @@ public class UserController {
 
 
 
+
     public UserController(UserService userService) {
         this.userService = userService;
+
     }
 
     @GetMapping
@@ -59,5 +63,14 @@ public class UserController {
     @PutMapping("/{id}/username")
     public ResponseEntity<?> updateUsername(@PathVariable Long id, @RequestBody String username){
         return userService.updateUsername(id, username);
+    }
+    @PostMapping("/{id}/valid-password")
+    public boolean isPasswordValid(@PathVariable Long id, @RequestBody ChangePasswordRequest request) {
+        return userService.isPasswordValid(id, request);
+    }
+
+    @PutMapping("/{id}/change-password")
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody ChangePasswordRequest request){
+        return userService.changePassword(id, request);
     }
 }
