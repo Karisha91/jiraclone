@@ -2,12 +2,14 @@ package com.ivan.jiraclone.service;
 
 
 import com.ivan.jiraclone.Repository.UserRepository;
+import com.ivan.jiraclone.dto.ChangePasswordRequest;
 import com.ivan.jiraclone.dto.UserDTO;
 import com.ivan.jiraclone.exception.DuplicateResourceException;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.model.User;
 import com.ivan.jiraclone.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,12 +25,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final CloudinaryService cloudinaryService;
     private final JwtUtil jwtUtil;
+    private PasswordEncoder passwordEncoder;
 
 
-    public UserService(UserRepository userRepository, CloudinaryService cloudinaryService, JwtUtil jwtUtil) {
+    public UserService(UserRepository userRepository, CloudinaryService cloudinaryService, JwtUtil jwtUtil,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.cloudinaryService = cloudinaryService;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> getAllUsers() {
@@ -99,5 +103,18 @@ public class UserService {
         String token = jwtUtil.generateToken(user.getUsername(), user.getId(), user.getRole());
         return ResponseEntity.ok(token);
 
+    }
+
+    public ResponseEntity<?> changePassword(Long id, ChangePasswordRequest request) {
+        User user =  userRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("User not found: " + id));
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        String token = jwtUtil.generateToken(user.getUsername(), user.getId(), user.getRole());
+        return ResponseEntity.ok(token);
+    }
+
+    public boolean isPasswordValid(Long id, ChangePasswordRequest request) {
+        User user =  userRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("User not found: " + id));
+        return  passwordEncoder.matches(request.getOldPassword(), user.getPassword());
     }
 }
