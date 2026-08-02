@@ -19,5 +19,7 @@ public class IssueDTO {
     private Long projectId;
     private String assigneeAvatarUrl;
     private String reporterAvatarUrl;
+    private Long workspaceId;
+
 
 }

@@ -18,10 +18,10 @@ import java.util.UUID;
 @Service
 public class PasswordResetService {
 
-    private PasswordResetTokenRepository passwordResetTokenRepository;
-    private UserService userService;
-    private JavaMailSender javaMailSender;
-    private PasswordEncoder passwordEncoder;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final UserService userService;
+    private final JavaMailSender javaMailSender;
+    private final PasswordEncoder passwordEncoder;
 
     public PasswordResetService(PasswordResetTokenRepository passwordResetTokenRepository, UserService userService, JavaMailSender javaMailSender,  PasswordEncoder passwordEncoder) {
         this.passwordResetTokenRepository = passwordResetTokenRepository;
