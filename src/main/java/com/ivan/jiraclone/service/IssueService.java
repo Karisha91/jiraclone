@@ -12,6 +12,8 @@ import com.ivan.jiraclone.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import com.ivan.jiraclone.enums.AuditAction;
 
@@ -28,14 +30,16 @@ public class IssueService {
     private final UserService userService;
     private final AuditLogService auditLogService;
     private final ProjectService projectService;
+    private final JavaMailSender javaMailSender;
 
 
-    public IssueService(IssueRepository issueRepository, NotificationService notificationService, UserService userService,AuditLogService auditLogService, ProjectService projectService) {
+    public IssueService(IssueRepository issueRepository, NotificationService notificationService, UserService userService,AuditLogService auditLogService, ProjectService projectService, JavaMailSender javaMailSender) {
         this.issueRepository = issueRepository;
         this.notificationService = notificationService;
         this.userService = userService;
         this.auditLogService = auditLogService;
         this.projectService = projectService;
+        this.javaMailSender = javaMailSender;
     }
     @Transactional
     public IssueDTO addIssue(CreateIssueRequest request, Principal principal) {
@@ -103,6 +107,7 @@ public class IssueService {
         dto.setProjectId(issue.getProject().getId());
         dto.setAssigneeAvatarUrl(issue.getAssignee() != null ? issue.getAssignee().getAvatarUrl() : null);
         dto.setReporterAvatarUrl(issue.getReporter() != null ? issue.getReporter().getAvatarUrl() : null);
+        dto.setWorkspaceId(issue.getProject().getWorkspace().getId());
 
         return dto;
     }
@@ -159,6 +164,15 @@ public class IssueService {
                 assigneeId,
                 "You have been assigned to: " + issue.getTitle(), id
         ,null);
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(user.getEmail());
+        mailMessage.setSubject("Assigned to: " + issue.getTitle());
+        mailMessage.setText("You have been assigned to: " + issue.getTitle());
+        try {
+            javaMailSender.send(mailMessage);
+        } catch (Exception e) {
+            System.err.println("Failed to send assignment email: " + e.getMessage());
+        }
         auditLogService.logAction(principal.getName(), AuditAction.ISSUE_ASSIGNED, "Issue", issue.getId(), issue.getTitle());
         return convertToDTO(saved);
 
