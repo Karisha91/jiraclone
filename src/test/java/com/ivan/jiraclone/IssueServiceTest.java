@@ -9,6 +9,7 @@ import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.model.Project;
 import com.ivan.jiraclone.model.User;
+import com.ivan.jiraclone.model.Workspace;
 import com.ivan.jiraclone.service.AuditLogService;
 import com.ivan.jiraclone.service.IssueService;
 import com.ivan.jiraclone.service.NotificationService;
@@ -17,6 +18,7 @@ import com.ivan.jiraclone.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import java.security.Principal;
 import java.util.Arrays;
@@ -32,7 +34,17 @@ public class IssueServiceTest {
     private UserService userService;
     private AuditLogService auditLogService;
     private ProjectService projectService;
+    private JavaMailSender javaMailSender;
     private Principal principal;
+
+    private Project projectWithWorkspace() {
+        Workspace workspace = new Workspace();
+        workspace.setId(1L);
+        Project project = new Project();
+        project.setId(1L);
+        project.setWorkspace(workspace);
+        return project;
+    }
 
     @BeforeEach
     public void setup() {
@@ -40,19 +52,19 @@ public class IssueServiceTest {
         userService = Mockito.mock(UserService.class);
         auditLogService = Mockito.mock(AuditLogService.class);
         projectService = Mockito.mock(ProjectService.class);
+        javaMailSender = Mockito.mock(JavaMailSender.class);
         NotificationService notificationService = Mockito.mock(NotificationService.class);
         principal = Mockito.mock(Principal.class);
         Mockito.when(principal.getName()).thenReturn("admin");
-        issueService = new IssueService(issueRepository, notificationService, userService, auditLogService, projectService);
+        issueService = new IssueService(issueRepository, notificationService, userService, auditLogService, projectService, javaMailSender);
     }
 
     @Test
-    void AddIssue() {
+    void addIssue() {
         User reporter = new User();
         reporter.setUsername("admin");
 
-        Project project = new Project();
-        project.setId(1L);
+        Project project = projectWithWorkspace();
 
         CreateIssueRequest request = new CreateIssueRequest();
         request.setTitle("Test issue");
@@ -77,7 +89,7 @@ public class IssueServiceTest {
 
     @Test
     void getAllIssues() {
-        Project project = new Project();
+        Project project = projectWithWorkspace();
 
         Issue issue = new Issue();
         issue.setId(1);
@@ -98,10 +110,11 @@ public class IssueServiceTest {
 
     @Test
     void getIssueById() {
+        Project project = projectWithWorkspace();
         Issue issue = new Issue();
         issue.setId(1);
         issue.setDescription("Test issue");
-        issue.setProject(new Project());
+        issue.setProject(project);
         Mockito.when(issueRepository.findById(issue.getId())).thenReturn(Optional.of(issue));
 
         Issue saved = issueService.getIssueById(issue.getId());
@@ -113,10 +126,11 @@ public class IssueServiceTest {
         User reporter = new User();
         reporter.setUsername("admin");
 
+        Project project = projectWithWorkspace();
         Issue issue = new Issue();
         issue.setId(1);
         issue.setDescription("Test issue");
-        issue.setProject(new Project());
+        issue.setProject(project);
         issue.setReporter(reporter);
 
         Mockito.when(issueRepository.findById(issue.getId())).thenReturn(Optional.of(issue));
@@ -130,11 +144,12 @@ public class IssueServiceTest {
         User reporter = new User();
         reporter.setUsername("admin");
 
+        Project project = projectWithWorkspace();
         Issue issue = new Issue();
         issue.setId(1);
         issue.setTitle("Test issue");
         issue.setDescription("Test issue");
-        issue.setProject(new Project());
+        issue.setProject(project);
         issue.setReporter(reporter);
 
         UpdateIssueRequest request = new UpdateIssueRequest();
@@ -153,10 +168,11 @@ public class IssueServiceTest {
 
     @Test
     void convertIssueToDTO() {
+        Project project = projectWithWorkspace();
         Issue issue = new Issue();
         issue.setId(1);
         issue.setDescription("Test issue");
-        issue.setProject(new Project());
+        issue.setProject(project);
 
         IssueDTO issueDTO = issueService.convertToDTO(issue);
         assertEquals(issue.getDescription(), issueDTO.getDescription());
@@ -164,10 +180,11 @@ public class IssueServiceTest {
 
     @Test
     void getIssueByProjectId() {
+        Project project = projectWithWorkspace();
         Issue issue = new Issue();
         issue.setId(1);
         issue.setDescription("Test issue");
-        issue.setProject(new Project());
+        issue.setProject(project);
         Mockito.when(issueRepository.findByProjectId(issue.getProject().getId())).thenReturn(List.of(issue));
 
         List<IssueDTO> result = issueService.getIssuesByProjectId(issue.getProject().getId());
@@ -177,10 +194,11 @@ public class IssueServiceTest {
 
     @Test
     void getIssuesByStatus() {
+        Project project = projectWithWorkspace();
         Issue issue = new Issue();
         issue.setId(1);
         issue.setDescription("Test issue");
-        issue.setProject(new Project());
+        issue.setProject(project);
         Mockito.when(issueRepository.findByStatus(issue.getStatus())).thenReturn(List.of(issue));
         List<IssueDTO> result = issueService.getIssuesByStatus(issue.getStatus());
         assertEquals(1, result.size());
@@ -189,10 +207,11 @@ public class IssueServiceTest {
 
     @Test
     void getIssuesByProjectIdAndStatus() {
+        Project project = projectWithWorkspace();
         Issue issue = new Issue();
         issue.setId(1);
         issue.setDescription("Test issue");
-        issue.setProject(new Project());
+        issue.setProject(project);
 
         Mockito.when(issueRepository.findByProjectIdAndStatus(issue.getProject().getId(), issue.getStatus())).thenReturn(List.of(issue));
 
