@@ -1,6 +1,7 @@
 package com.ivan.jiraclone.model;
 
 
+import com.ivan.jiraclone.enums.SubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,5 +26,7 @@ public class User {
     private String role;
 
     private String avatarUrl;
+
+    private SubscriptionStatus subscriptionStatus;
 
 }

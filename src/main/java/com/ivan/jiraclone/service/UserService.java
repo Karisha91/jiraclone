@@ -117,4 +117,6 @@ public class UserService {
         User user =  userRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("User not found: " + id));
         return  passwordEncoder.matches(request.getOldPassword(), user.getPassword());
     }
+
+
 }

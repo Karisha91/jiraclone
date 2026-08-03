@@ -3,6 +3,7 @@ package com.ivan.jiraclone.service;
 
 import com.ivan.jiraclone.Repository.WorkspaceRepository;
 import com.ivan.jiraclone.dto.*;
+import com.ivan.jiraclone.enums.SubscriptionStatus;
 import com.ivan.jiraclone.exception.ResourceAlreadyExistsException;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.exception.UnauthorizedException;
@@ -24,8 +25,8 @@ import java.util.stream.Collectors;
 @Service
 public class WorkspaceService {
 
-    private WorkspaceRepository workspaceRepository;
-    private UserService userService;
+    private final WorkspaceRepository workspaceRepository;
+    private final UserService userService;
     private final NotificationService notificationService;
 
     public WorkspaceService(WorkspaceRepository workspaceRepository, UserService userService, NotificationService notificationService) {
@@ -36,8 +37,16 @@ public class WorkspaceService {
 
 
         public WorkspaceResponse createWorkspace(WorkspaceRequest  workspaceRequest, Principal principal) {
-        Workspace workspace = new Workspace();
+
         User user = userService.findByUsername(principal.getName());
+        int workspaceCount = workspaceRepository.countByOwnerOrMembers(user);
+            System.out.println("Workspace count for " + user.getUsername() + ": " + workspaceCount);
+
+        if (workspaceCount >= 3 && user.getSubscriptionStatus() != SubscriptionStatus.PREMIUM) {
+            throw new UnauthorizedException("You have reached the maximum number of workspaces for your subscription plan. Please upgrade to create more workspaces.");
+        }
+        Workspace workspace = new Workspace();
+
         workspace.setName(workspaceRequest.getName());
         workspace.setDescription(workspaceRequest.getDescription());
         workspace.setCreatedAt(LocalDateTime.now());
@@ -121,6 +130,10 @@ public class WorkspaceService {
         }
 
         User user = userService.findByUsername(userDTO.getUsername());
+        int workspaceCount = workspaceRepository.countByOwnerOrMembers(user);
+        if (workspaceCount >= 3 && user.getSubscriptionStatus() != SubscriptionStatus.PREMIUM) {
+            throw new UnauthorizedException("Member have reached the maximum number of workspaces for their subscription plan.");
+        }
         if (workspace.getMembers().contains(user)) {
             throw new ResourceAlreadyExistsException("User is already a member of this workspace");
         }
@@ -131,7 +144,7 @@ public class WorkspaceService {
 
         workspace.getMembers().add(user);
         workspaceRepository.save(workspace);
-        notificationService.sendNotification(user.getId(),workspace.getOwner().getUsername() + "added you to: " + workspace.getName(), null, workspace.getId());
+        notificationService.sendNotification(user.getId(),workspace.getOwner().getUsername() + " added you to: " + workspace.getName(), null, workspace.getId());
         return memberSummary;
     }
     @Transactional
