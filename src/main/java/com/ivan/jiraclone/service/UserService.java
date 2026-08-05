@@ -4,6 +4,7 @@ package com.ivan.jiraclone.service;
 import com.ivan.jiraclone.Repository.UserRepository;
 import com.ivan.jiraclone.dto.ChangePasswordRequest;
 import com.ivan.jiraclone.dto.UserDTO;
+import com.ivan.jiraclone.enums.SubscriptionStatus;
 import com.ivan.jiraclone.exception.DuplicateResourceException;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
 import com.ivan.jiraclone.model.User;
@@ -119,4 +120,9 @@ public class UserService {
     }
 
 
+    public void upgradeToPremium(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        user.setSubscriptionStatus(SubscriptionStatus.PREMIUM);
+        userRepository.save(user);
+    }
 }
