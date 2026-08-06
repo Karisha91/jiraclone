@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 //8#
@@ -35,7 +33,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
-    private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
 
     public JwtFilter(JwtUtil jwtUtil, CustomUserDetailsService userDetailsService){
         this.jwtUtil = jwtUtil;
@@ -49,7 +46,6 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        log.info("JwtFilter hit: {} {} | Auth header: {}", request.getMethod(), request.getRequestURI(), authHeader != null ? authHeader.substring(0, Math.min(20, authHeader.length())) : "NULL");
         final String jwt;
         final String username;
 
