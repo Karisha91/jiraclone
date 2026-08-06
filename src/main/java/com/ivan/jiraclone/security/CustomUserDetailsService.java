@@ -17,13 +17,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
-
-
-    // 6# Spring Security doesn't know about our User entity.
-    // It only understands its own UserDetails format.
-    // This method acts as a translator — it loads our User from PostgreSQL
-    // and converts it into something Spring Security can work with.
-    // Called automatically by Spring Security during login.
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
