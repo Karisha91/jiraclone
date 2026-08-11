@@ -18,4 +18,5 @@ public class UpdateIssueRequest {
     @NotNull
     private Priority priority;
 
+
 }

@@ -92,11 +92,11 @@ public class IssueServiceTest {
         Project project = projectWithWorkspace();
 
         Issue issue = new Issue();
-        issue.setId(1);
+        issue.setId(1L);
         issue.setDescription("Test issue");
         issue.setProject(project);
         Issue issue2 = new Issue();
-        issue2.setId(2);
+        issue2.setId(2L);
         issue2.setDescription("Test issue2");
         issue2.setProject(project);
 
@@ -112,7 +112,7 @@ public class IssueServiceTest {
     void getIssueById() {
         Project project = projectWithWorkspace();
         Issue issue = new Issue();
-        issue.setId(1);
+        issue.setId(1L);
         issue.setDescription("Test issue");
         issue.setProject(project);
         Mockito.when(issueRepository.findById(issue.getId())).thenReturn(Optional.of(issue));
@@ -128,7 +128,7 @@ public class IssueServiceTest {
 
         Project project = projectWithWorkspace();
         Issue issue = new Issue();
-        issue.setId(1);
+        issue.setId(1L);
         issue.setDescription("Test issue");
         issue.setProject(project);
         issue.setReporter(reporter);
@@ -146,7 +146,7 @@ public class IssueServiceTest {
 
         Project project = projectWithWorkspace();
         Issue issue = new Issue();
-        issue.setId(1);
+        issue.setId(1L);
         issue.setTitle("Test issue");
         issue.setDescription("Test issue");
         issue.setProject(project);
@@ -170,7 +170,7 @@ public class IssueServiceTest {
     void convertIssueToDTO() {
         Project project = projectWithWorkspace();
         Issue issue = new Issue();
-        issue.setId(1);
+        issue.setId(1L);
         issue.setDescription("Test issue");
         issue.setProject(project);
 
@@ -182,7 +182,7 @@ public class IssueServiceTest {
     void getIssueByProjectId() {
         Project project = projectWithWorkspace();
         Issue issue = new Issue();
-        issue.setId(1);
+        issue.setId(1L);
         issue.setDescription("Test issue");
         issue.setProject(project);
         Mockito.when(issueRepository.findByProjectId(issue.getProject().getId())).thenReturn(List.of(issue));
@@ -196,7 +196,7 @@ public class IssueServiceTest {
     void getIssuesByStatus() {
         Project project = projectWithWorkspace();
         Issue issue = new Issue();
-        issue.setId(1);
+        issue.setId(1L);
         issue.setDescription("Test issue");
         issue.setProject(project);
         Mockito.when(issueRepository.findByStatus(issue.getStatus())).thenReturn(List.of(issue));
@@ -209,7 +209,7 @@ public class IssueServiceTest {
     void getIssuesByProjectIdAndStatus() {
         Project project = projectWithWorkspace();
         Issue issue = new Issue();
-        issue.setId(1);
+        issue.setId(1L);
         issue.setDescription("Test issue");
         issue.setProject(project);
 
@@ -217,6 +217,6 @@ public class IssueServiceTest {
 
         List<IssueDTO> result = issueService.getIssuesByProjectIdAndStatus(issue.getProject().getId(), issue.getStatus());
         assertEquals(1, result.size());
-        assertEquals(issue.getDescription(), result.get(0).getDescription());
+        assertEquals(issue.getDescription(), result.getFirst().getDescription());
     }
 }
