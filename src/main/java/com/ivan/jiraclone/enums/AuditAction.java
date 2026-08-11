@@ -10,5 +10,6 @@ public enum AuditAction {
     ISSUE_ASSIGNED,
     COMMENT_CREATED,
     COMMENT_DELETED,
-    ROLE_CHANGED
+    ROLE_CHANGED,
+    ISSUE_MOVED,
 }

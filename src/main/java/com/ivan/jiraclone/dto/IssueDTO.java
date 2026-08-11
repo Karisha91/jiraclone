@@ -20,6 +20,8 @@ public class IssueDTO {
     private String assigneeAvatarUrl;
     private String reporterAvatarUrl;
     private Long workspaceId;
+    private Double position;
+
 
 
 }

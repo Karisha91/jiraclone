@@ -1,10 +1,7 @@
 package com.ivan.jiraclone.controller;
 
 
-import com.ivan.jiraclone.dto.AssignRequest;
-import com.ivan.jiraclone.dto.CreateIssueRequest;
-import com.ivan.jiraclone.dto.IssueDTO;
-import com.ivan.jiraclone.dto.UpdateIssueRequest;
+import com.ivan.jiraclone.dto.*;
 import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.model.Issue;
 import com.ivan.jiraclone.service.IssueService;
@@ -88,6 +85,16 @@ public class IssueController {
     public List<IssueDTO> getIssuesAssignedToMe(Principal principal) {
         String username = principal.getName();
         return issueService.getIssuesAssignedToUser(username);
+    }
+    @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
+    @PatchMapping("/{id}/move")
+    public IssueDTO patchIssue(@PathVariable Long id,@Valid @RequestBody MoveIssueRequest request, Principal principal) {
+        return issueService.moveIssue(id, request, principal);
+    }
+
+    @GetMapping("/{projectId}/board")
+    public List<IssueDTO> getIssuesForBoard(@PathVariable Long projectId) {
+        return issueService.getIssuesByProjectId(projectId);
     }
 }
 

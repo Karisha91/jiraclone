@@ -6,6 +6,8 @@ import com.ivan.jiraclone.enums.Status;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
 @Table(name = "issues")
@@ -13,7 +15,7 @@ public class Issue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String title;
@@ -40,5 +42,15 @@ public class Issue {
     @ManyToOne
     @JoinColumn(name = "assignee_id")
     private User assignee;
+
+    @Column(name = "position", nullable = false)
+    private Double position;
+
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
 }

@@ -4,6 +4,7 @@ package com.ivan.jiraclone.service;
 import com.ivan.jiraclone.Repository.IssueRepository;
 import com.ivan.jiraclone.dto.CreateIssueRequest;
 import com.ivan.jiraclone.dto.IssueDTO;
+import com.ivan.jiraclone.dto.MoveIssueRequest;
 import com.ivan.jiraclone.dto.UpdateIssueRequest;
 import com.ivan.jiraclone.enums.Status;
 import com.ivan.jiraclone.exception.ResourceNotFoundException;
@@ -108,6 +109,8 @@ public class IssueService {
         dto.setAssigneeAvatarUrl(issue.getAssignee() != null ? issue.getAssignee().getAvatarUrl() : null);
         dto.setReporterAvatarUrl(issue.getReporter() != null ? issue.getReporter().getAvatarUrl() : null);
         dto.setWorkspaceId(issue.getProject().getWorkspace().getId());
+        dto.setPosition(issue.getPosition());
+
 
         return dto;
     }
@@ -192,5 +195,14 @@ public class IssueService {
     public List<IssueDTO> getAllIssuesByWorkspaceId(long workspaceId) {
         List<Issue> issues = issueRepository.findByWorkspaceId(workspaceId);
         return issues.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    public IssueDTO moveIssue(Long id, MoveIssueRequest request, Principal principal) {
+        Issue issue = getIssueById(id);
+        issue.setStatus(request.getStatus());
+        issue.setPosition(request.getPosition());
+        Issue saved = issueRepository.save(issue);
+        auditLogService.logAction(principal.getName(), AuditAction.ISSUE_MOVED, "Issue", issue.getId(), issue.getTitle());
+        return convertToDTO(saved);
     }
 }
