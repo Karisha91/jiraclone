@@ -1,21 +1,30 @@
 package com.ivan.jiraclone.security;
 
-
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    private final Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${jwt.secret}")
+    private String secretString;
+
+    private Key secretKey;
+
+    @PostConstruct
+    public void init() {
+        secretKey = Keys.hmacShaKeyFor(secretString.getBytes(StandardCharsets.UTF_8));
+    }
+
     private final long EXPIRATION_TIME = 86400000;
-
-
 
     // 1# Generate token
     public String generateToken(String username, Long userId, String roles) {
@@ -29,8 +38,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 2# Extract username - Take this token, verify it's genuine using our secret key,
-    // decode it, and return the username we stored inside
+    // 2# Extract username
     public String extractUsername(String token){
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -39,6 +47,7 @@ public class JwtUtil {
                 .getBody()
                 .getSubject();
     }
+
     public Long extractUserId(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -47,7 +56,8 @@ public class JwtUtil {
                 .getBody()
                 .get("userId", Long.class);
     }
-    // 3#  Check if token is expired
+
+    // 3# Check if token is expired
     private boolean isTokenExpired(String token){
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -55,12 +65,11 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getExpiration().before(new Date());
-
     }
+
     // 4# Check if username from token matches username from database and expiration time of token
     public boolean isTokenValid(String token, String username) {
         final String extractedUsername = extractUsername(token);
         return extractedUsername.equals(username) && !isTokenExpired(token);
     }
-
 }
