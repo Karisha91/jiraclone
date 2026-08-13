@@ -43,7 +43,7 @@ public class Issue {
     @JoinColumn(name = "assignee_id")
     private User assignee;
 
-    @Column(name = "position")
+    @Column(name = "position", nullable = false)
     private Double position;
 
     private LocalDateTime createdAt;
