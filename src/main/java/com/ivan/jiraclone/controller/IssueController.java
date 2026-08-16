@@ -88,7 +88,7 @@ public class IssueController {
     }
     @PreAuthorize("hasRole('DEVELOPER') or hasRole('ADMIN')")
     @PatchMapping("/{id}/move")
-    public IssueDTO patchIssue(@PathVariable Long id,@Valid @RequestBody MoveIssueRequest request, Principal principal) {
+    public IssueDTO patchIssue(@PathVariable Long id, @Valid @RequestBody MoveIssueRequest request, Principal principal) {
         return issueService.moveIssue(id, request, principal);
     }
 
